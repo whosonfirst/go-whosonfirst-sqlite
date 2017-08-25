@@ -9,8 +9,10 @@ self:   prep rmdeps
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/database
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/tables
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/utils
 	cp -r database/* src/github.com/whosonfirst/go-whosonfirst-sqlite/database/
 	cp -r tables/* src/github.com/whosonfirst/go-whosonfirst-sqlite/tables/
+	cp -r utils/* src/github.com/whosonfirst/go-whosonfirst-sqlite/utils/
 	cp -r *.go src/github.com/whosonfirst/go-whosonfirst-sqlite/
 	cp -r vendor/src/* src/
 	cp -r src/github.com/whosonfirst/go-whosonfirst-index/vendor/src/github.com/whosonfirst/go-whosonfirst-sources src/github.com/whosonfirst/
@@ -42,6 +44,7 @@ fmt:
 	go fmt cmd/*.go
 	go fmt database/*.go
 	go fmt tables/*.go
+	go fmt utils/*.go
 
 bin: 	self
 	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index cmd/wof-sqlite-index.go

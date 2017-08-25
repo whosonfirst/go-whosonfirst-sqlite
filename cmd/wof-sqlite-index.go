@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-index"
 	"github.com/whosonfirst/go-whosonfirst-index/utils"
@@ -83,7 +84,9 @@ func main() {
 		logger.Fatal("Failed to get DB conn")
 	}
 
-	stmt, err := conn.Prepare("select body from whosonfirst LIMIT 1")
+	sql := fmt.Sprintf("SELECT body from %s LIMIT 1", gt.Name())
+
+	stmt, err := conn.Prepare(sql)
 
 	if err != nil {
 		logger.Fatal("Failed to prepare statement because %s", err)

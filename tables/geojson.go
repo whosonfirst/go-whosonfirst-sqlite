@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
+	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
 )
 
 type GeoJSONTable struct {
@@ -29,7 +30,8 @@ func (t *GeoJSONTable) Schema() string {
 }
 
 func (t *GeoJSONTable) InitializeTable(db sqlite.Database) error {
-	return nil
+
+	return utils.CreateTableIfNecessary(db, t)
 }
 
 func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
