@@ -7,8 +7,11 @@ prep:
 self:   prep rmdeps
 	if test -d src/github.com/whosonfirst/go-whosonfirst-sqlite; then rm -rf src/github.com/whosonfirst/go-whosonfirst-sqlite; fi
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite
-	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/schema
-	cp -r schema/* src/github.com/whosonfirst/go-whosonfirst-sqlite/schema/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/database
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/tables
+	cp -r database/* src/github.com/whosonfirst/go-whosonfirst-sqlite/database/
+	cp -r tables/* src/github.com/whosonfirst/go-whosonfirst-sqlite/tables/
+	cp -r *.go src/github.com/whosonfirst/go-whosonfirst-sqlite/
 	cp -r vendor/src/* src/
 	cp -r src/github.com/whosonfirst/go-whosonfirst-index/vendor/src/github.com/whosonfirst/go-whosonfirst-sources src/github.com/whosonfirst/
 	cp -r src/github.com/whosonfirst/go-whosonfirst-index/vendor/src/github.com/whosonfirst/go-whosonfirst-uri src/github.com/whosonfirst/
@@ -37,7 +40,8 @@ vendor-deps: rmdeps deps
 
 fmt:
 	go fmt cmd/*.go
-	go fmt schema/*.go
+	go fmt database/*.go
+	go fmt tables/*.go
 
 bin: 	self
 	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index cmd/wof-sqlite-index.go

@@ -2,15 +2,13 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	_ "encoding/json"
 	"flag"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-index"
 	"github.com/whosonfirst/go-whosonfirst-index/utils"
 	"github.com/whosonfirst/go-whosonfirst-log"
-	"github.com/whosonfirst/go-whosonfirst-sqlite/schema"
+	"github.com/whosonfirst/go-whosonfirst-sqlite/database"
+	"github.com/whosonfirst/go-whosonfirst-sqlite/tables"
 	"io"
 	"os"
 )
@@ -18,33 +16,30 @@ import (
 func main() {
 
 	mode := flag.String("mode", "files", "The mode to use importing data.")
-	database := flag.String("database", ":memory:", "")
+	dsn := flag.String("dsn", ":memory:", "")
 
 	flag.Parse()
 
 	logger := log.SimpleWOFLogger()
 
-	// If you're reading this then that means it is probably still "too soon".
-	// All (or most) of the SQL specific stuff will be moved in to proper
-	// packages... but not today (20170824/thisisaaronland)
-
-	db, err := sql.Open("sqlite3", *database)
+	db, err := database.NewDB(*dsn)
 
 	if err != nil {
-		logger.Fatal("unable to create database (%s) because %s", *database, err)
+		logger.Fatal("unable to create database (%s) because %s", *dsn, err)
 	}
 
 	defer db.Close()
 
-	// For example... check to see that the database doesn't already exist and
-	// stuff like that (20170824/thisisaaronland)
-
-	sql := schema.WhosOnFirstSchema()
-
-	_, err = db.Exec(sql)
+	gt, err := tables.NewGeoJSONTable()
 
 	if err != nil {
-		logger.Fatal("failed to load schema because %s", err)
+		logger.Fatal("failed to create geojson table because %s", err)
+	}
+
+	err = gt.InitializeTable(db)
+
+	if err != nil {
+		logger.Fatal("failed to initialize geojson table because %s", err)
 	}
 
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
@@ -65,38 +60,7 @@ func main() {
 			return err
 		}
 
-		str_id := f.Id()
-		body := f.Bytes()
-
-		if err != nil {
-			return err
-		}
-
-		tx, err := db.Begin()
-
-		if err != nil {
-			return err
-		}
-
-		stmt, err := tx.Prepare("insert into whosonfirst(id, body) values(?, ?)")
-
-		if err != nil {
-			return err
-		}
-
-		defer stmt.Close()
-
-		str_body := string(body)
-
-		_, err = stmt.Exec(str_id, str_body)
-
-		if err != nil {
-			return err
-		}
-
-		tx.Commit()
-
-		return nil
+		return gt.IndexFeature(db, f)
 	}
 
 	indexer, err := index.NewIndexer(*mode, cb)
@@ -113,7 +77,13 @@ func main() {
 
 	logger.Status("DONE INDEXING")
 
-	stmt, err := db.Prepare("select body from whosonfirst LIMIT 1")
+	conn, err := db.Conn()
+
+	if err != nil {
+		logger.Fatal("Failed to get DB conn")
+	}
+
+	stmt, err := conn.Prepare("select body from whosonfirst LIMIT 1")
 
 	if err != nil {
 		logger.Fatal("Failed to prepare statement because %s", err)

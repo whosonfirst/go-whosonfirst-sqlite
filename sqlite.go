@@ -1,14 +1,32 @@
 package sqlite
 
-// this is here so we can pass both sql.Row and sql.Rows to the
-// SQLiteQueryRowToPgisRowFunc below (20170824/thisisaaronland)
+import (
+       "database/sql"
+       "github.com/whosonfirst/go-whosonfirst-geojson-v2"
+)
 
-type SQLiteResultSet interface {
+type Database interface {
+     Conn() (*sql.DB, error)
+     DSN() string
+     Close() error
+}
+
+type Table interface {
+     Name() string
+     Schema() string
+     InitializeTable(Database) error
+     IndexFeature(Database, geojson.Feature) error
+}
+
+// this is here so we can pass both sql.Row and sql.Rows to the
+// ResultSetFunc below (20170824/thisisaaronland)
+
+type ResultSet interface {
 	Scan(dest ...interface{}) error
 }
 
-type SQLiteRow interface {
-     // uhhh.... (20170824/thisisaaronland)
+type ResultRow interface {
+     Row() interface{}
 }
 
-type SQLiteQueryRowFunc func(row SQLiteResultSet) (*SQLiteRow, error)
+type ResultSetFunc func(row ResultSet) (ResultRow, error)
