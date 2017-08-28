@@ -30,9 +30,15 @@ type WOFStandardPlacesResult struct {
 	WOFCountry               string  `json:"wof:country"`
 	WOFRepo                  string  `json:"wof:repo"`
 	WOFPath                  string  `json:"wof:path"`
-	MZURI                    string  `json:"mz:uri"`
 	WOFSupersededBy          []int64 `json:"wof:superseded_by"`
 	WOFSupersedes            []int64 `json:"wof:supersedes"`
+	MZURI                    string  `json:"mz:uri"`
+	MZLatitude               float64 `json:"mz:latitude"`
+	MZLongitude              float64 `json:"mz:longitude"`
+	MZMinLatitude            float64 `json:"mz:min_latitude"`
+	MZMinLongitude           float64 `json:"mz:min_longitude"`
+	MZMaxLatitude            float64 `json:"mz:max_latitude"`
+	MZMaxLongitude           float64 `json:"mz:max_longitude"`
 	MZIsCurrent              int64   `json:"mz:is_current"`
 	MZIsCeased               int64   `json:"mz:is_ceased"`
 	MZIsDeprecated           int64   `json:"mz:is_deprecated"`
@@ -47,6 +53,9 @@ func EnsureWOFFeature(body []byte) error {
 		"properties.wof:name",
 		"properties.wof:repo",
 		"properties.wof:placetype",
+		"properties.geom:latitude",
+		"properties.geom:longitude",
+		"properties.geom:bbox",
 	}
 
 	err := utils.EnsureProperties(body, required)
@@ -179,6 +188,21 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 		return nil, err
 	}
 
+	centroid, err := whosonfirst.Centroid(f)
+
+	if err != nil {
+		return nil, err
+	}
+
+	bboxes, err := f.BoundingBoxes()
+
+	if err != nil {
+		return nil, err
+	}
+
+	coord := centroid.Coord()
+	mbr := bboxes.MBR()
+
 	superseded_by := whosonfirst.SupersededBy(f)
 	supersedes := whosonfirst.Supersedes(f)
 
@@ -190,14 +214,20 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 		WOFCountry:      country,
 		WOFRepo:         repo,
 		WOFPath:         path,
+		WOFSupersedes:   supersedes,
+		WOFSupersededBy: superseded_by,
 		MZURI:           uri,
+		MZLatitude:      coord.Y,
+		MZLongitude:     coord.X,
+		MZMinLatitude:   mbr.Min.Y,
+		MZMinLongitude:  mbr.Min.X,
+		MZMaxLatitude:   mbr.Max.Y,
+		MZMaxLongitude:  mbr.Max.X,
 		MZIsCurrent:     is_current.Flag(),
 		MZIsCeased:      is_ceased.Flag(),
 		MZIsDeprecated:  is_deprecated.Flag(),
 		MZIsSuperseded:  is_superseded.Flag(),
 		MZIsSuperseding: is_superseding.Flag(),
-		WOFSupersedes:   supersedes,
-		WOFSupersededBy: superseded_by,
 	}
 
 	return &spr, nil
@@ -233,6 +263,30 @@ func (spr *WOFStandardPlacesResult) Path() string {
 
 func (spr *WOFStandardPlacesResult) URI() string {
 	return spr.MZURI
+}
+
+func (spr *WOFStandardPlacesResult) Latitude() float64 {
+	return spr.MZLatitude
+}
+
+func (spr *WOFStandardPlacesResult) Longitude() float64 {
+	return spr.MZLongitude
+}
+
+func (spr *WOFStandardPlacesResult) MinLatitude() float64 {
+	return spr.MZMinLatitude
+}
+
+func (spr *WOFStandardPlacesResult) MinLongitude() float64 {
+	return spr.MZMinLongitude
+}
+
+func (spr *WOFStandardPlacesResult) MaxLatitude() float64 {
+	return spr.MZLatitude
+}
+
+func (spr *WOFStandardPlacesResult) MaxLongitude() float64 {
+	return spr.MZMaxLongitude
 }
 
 func (spr *WOFStandardPlacesResult) IsCurrent() flags.ExistentialFlag {

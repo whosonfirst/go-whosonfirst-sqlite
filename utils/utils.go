@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"errors"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
+	"os"
 )
 
 func CreateTableIfNecessary(db sqlite.Database, t sqlite.Table) error {
@@ -10,6 +12,17 @@ func CreateTableIfNecessary(db sqlite.Database, t sqlite.Table) error {
 
 	if db.DSN() == ":memory:" {
 		create = true
+	} else {
+
+		info, err := os.Stat(db.DSN())
+
+		if info.IsDir() {
+			return errors.New("path is a directory")
+		}
+
+		if os.IsNotExist(err) {
+			create = true
+		}
 	}
 
 	if create {
