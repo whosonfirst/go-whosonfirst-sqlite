@@ -109,7 +109,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		?, ?)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
 
 	args := []interface{}{
-		spr.Id(), spr.Name(), spr.ParentId(), spr.Placetype(),
+		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
 		spr.Country(), spr.Repo(),
 		spr.Latitude(), spr.Longitude(),
 		spr.MinLatitude(), spr.MinLongitude(),
