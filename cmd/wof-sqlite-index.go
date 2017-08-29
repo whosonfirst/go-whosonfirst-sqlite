@@ -8,6 +8,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-index"
 	"github.com/whosonfirst/go-whosonfirst-index/utils"
 	"github.com/whosonfirst/go-whosonfirst-log"
+	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/tables"
 	"io"
@@ -43,6 +44,18 @@ func main() {
 		logger.Fatal("failed to initialize geojson table because %s", err)
 	}
 
+	st, err := tables.NewSPRTable()
+
+	if err != nil {
+		logger.Fatal("failed to create geojson table because %s", err)
+	}
+
+	err = st.InitializeTable(db)
+
+	if err != nil {
+		logger.Fatal("failed to initialize geojson table because %s", err)
+	}
+
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
 
 		ok, err := utils.IsPrincipalWOFRecord(fh, ctx)
@@ -61,7 +74,18 @@ func main() {
 			return err
 		}
 
-		return gt.IndexFeature(db, f)
+		tables := []sqlite.Table{ gt, st }
+
+		for _, t := range tables {
+
+			err = t.IndexFeature(db, f)
+
+			if err != nil {
+			   return err
+			}
+		}
+
+		return nil
 	}
 
 	indexer, err := index.NewIndexer(*mode, cb)

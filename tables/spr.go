@@ -97,7 +97,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		max_latitude, max_longitude,
 		is_current, is_deprecated, is_ceased,
 		is_superseded, is_superseding,
-		susperseded_by, supersedes)
+		superseded_by, supersedes)
 		VALUES (
 		?, ?, ?, ?,
 		?, ?,
@@ -109,13 +109,14 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		?, ?)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
 
 	args := []interface{}{
-		spr.Id(), spr.Name(), spr.ParentId(),
+		spr.Id(), spr.Name(), spr.ParentId(), spr.Placetype(),
 		spr.Country(), spr.Repo(),
 		spr.Latitude(), spr.Longitude(),
 		spr.MinLatitude(), spr.MinLongitude(),
 		spr.MaxLatitude(), spr.MaxLongitude(),
 		spr.IsCurrent().Flag(), spr.IsDeprecated().Flag(), spr.IsCeased().Flag(),
 		spr.IsSuperseded().Flag(), spr.IsSuperseding().Flag(),
+		"", "",
 	}
 
 	conn, err := db.Conn()
