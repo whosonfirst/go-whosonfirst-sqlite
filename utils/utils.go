@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"os"
 )
@@ -14,14 +13,44 @@ func CreateTableIfNecessary(db sqlite.Database, t sqlite.Table) error {
 		create = true
 	} else {
 
-		info, err := os.Stat(db.DSN())
-
-		if info.IsDir() {
-			return errors.New("path is a directory")
-		}
+		_, err := os.Stat(db.DSN())
 
 		if os.IsNotExist(err) {
 			create = true
+		} else {
+
+			conn, err := db.Conn()
+
+			if err != nil {
+				return err
+			}
+
+			sql := "SELECT name FROM sqlite_master WHERE type='table'"
+
+			rows, err := conn.Query(sql)
+
+			if err != nil {
+				return err
+			}
+
+			defer rows.Close()
+
+			create = true
+
+			for rows.Next() {
+
+				var name string
+				err := rows.Scan(&name)
+
+				if err != nil {
+					return err
+				}
+
+				if name == t.Name() {
+					create = false
+					break
+				}
+			}
 		}
 	}
 

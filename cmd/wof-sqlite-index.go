@@ -74,14 +74,14 @@ func main() {
 			return err
 		}
 
-		tables := []sqlite.Table{ gt, st }
+		tables := []sqlite.Table{gt, st}
 
 		for _, t := range tables {
 
 			err = t.IndexFeature(db, f)
 
 			if err != nil {
-			   return err
+				return err
 			}
 		}
 
