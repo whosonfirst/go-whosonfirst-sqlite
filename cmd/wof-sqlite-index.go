@@ -35,26 +35,40 @@ func main() {
 	gt, err := tables.NewGeoJSONTable()
 
 	if err != nil {
-		logger.Fatal("failed to create geojson table because %s", err)
+		logger.Fatal("failed to create 'geojson' table because %s", err)
 	}
 
 	err = gt.InitializeTable(db)
 
 	if err != nil {
-		logger.Fatal("failed to initialize geojson table because %s", err)
+		logger.Fatal("failed to initialize 'geojson' table because %s", err)
 	}
 
 	st, err := tables.NewSPRTable()
 
 	if err != nil {
-		logger.Fatal("failed to create geojson table because %s", err)
+		logger.Fatal("failed to create 'spr' table because %s", err)
 	}
 
 	err = st.InitializeTable(db)
 
 	if err != nil {
-		logger.Fatal("failed to initialize geojson table because %s", err)
+		logger.Fatal("failed to initialize 'spr' table because %s", err)
 	}
+
+	nm, err := tables.NewNamesTable()
+
+	if err != nil {
+		logger.Fatal("failed to create 'names' table because %s", err)
+	}
+
+	err = nm.InitializeTable(db)
+
+	if err != nil {
+		logger.Fatal("failed to initialize 'names' table because %s", err)
+	}
+
+	tables := []sqlite.Table{gt, st, nm}
 
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
 
@@ -73,8 +87,6 @@ func main() {
 		if err != nil {
 			return err
 		}
-
-		tables := []sqlite.Table{gt, st}
 
 		for _, t := range tables {
 
