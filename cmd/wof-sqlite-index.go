@@ -88,6 +88,10 @@ func main() {
 			return err
 		}
 
+		db.Lock()
+
+		defer db.Unlock()
+
 		for _, t := range tables {
 
 			err = t.IndexFeature(db, f)

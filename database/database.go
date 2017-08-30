@@ -3,11 +3,13 @@ package database
 import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
+	"sync"
 )
 
 type SQLiteDatabase struct {
 	conn *sql.DB
 	dsn  string
+	mu   *sync.Mutex
 }
 
 func NewDB(dsn string) (*SQLiteDatabase, error) {
@@ -18,12 +20,23 @@ func NewDB(dsn string) (*SQLiteDatabase, error) {
 		return nil, err
 	}
 
+	mu := new(sync.Mutex)
+
 	db := SQLiteDatabase{
 		conn: conn,
 		dsn:  dsn,
+		mu:   mu,
 	}
 
 	return &db, err
+}
+
+func (db *SQLiteDatabase) Lock() {
+	db.mu.Lock()
+}
+
+func (db *SQLiteDatabase) Unlock() {
+	db.mu.Unlock()
 }
 
 func (db *SQLiteDatabase) Conn() (*sql.DB, error) {
