@@ -30,6 +30,31 @@ _Please write me._
 
 _Please write me._
 
+## Interfaces
+
+### Database
+
+```
+type Database interface {
+     Conn() (*sql.DB, error)
+     DSN() string
+     Close() error
+}
+```
+
+### Table
+
+```
+type Table interface {
+     Name() string
+     Schema() string
+     InitializeTable(Database) error
+     IndexFeature(Database, geojson.Feature) error
+}
+```
+
+Where `geojson.Feature` is defined in the [go-whosonfirst-geojson-v2](https://github.com/whosonfirst/go-whosonfirst-geojson-v2#geojsonfeature) package.
+
 ## Tools
 
 ### wof-sqlite-index
