@@ -12,7 +12,7 @@ self:   prep
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-index/utils
 	cp -r *.go src/github.com/whosonfirst/go-whosonfirst-index/
 	cp -r utils/*.go src/github.com/whosonfirst/go-whosonfirst-index/utils/
-	if test -d vendor/src; then cp -r vendor/src/* src/; fi
+	cp -r vendor/* src/
 
 rmdeps:
 	if test -d src; then rm -rf src; fi 
@@ -26,8 +26,7 @@ deps:
 
 vendor-deps: rmdeps deps
 	if test ! -d vendor; then mkdir vendor; fi
-	if test -d vendor/src; then rm -rf vendor/src; fi
-	cp -r src vendor/src
+	cp -r src/ vendor
 	find vendor -name '.git' -print -type d -exec rm -rf {} +
 	rm -rf src
 
