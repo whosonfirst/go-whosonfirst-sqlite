@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-index"
 	"github.com/whosonfirst/go-whosonfirst-index/utils"
@@ -18,6 +17,12 @@ import (
 func main() {
 
 	mode := flag.String("mode", "files", "The mode to use importing data.")
+
+	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
+	spr := flag.Bool("spr", false, "Index the 'spr' table")
+	names := flag.Bool("names", false, "Index the 'names' table")
+	all := flag.Bool("all", false, "Index all tables")
+
 	dsn := flag.String("dsn", ":memory:", "")
 
 	flag.Parse()
@@ -32,43 +37,58 @@ func main() {
 
 	defer db.Close()
 
-	gt, err := tables.NewGeoJSONTable()
+	to_index := make([]sqlite.Table, 0)
 
-	if err != nil {
-		logger.Fatal("failed to create 'geojson' table because %s", err)
+	if *geojson || *all {
+
+		gt, err := tables.NewGeoJSONTable()
+
+		if err != nil {
+			logger.Fatal("failed to create 'geojson' table because %s", err)
+		}
+
+		err = gt.InitializeTable(db)
+
+		if err != nil {
+			logger.Fatal("failed to initialize 'geojson' table because %s", err)
+		}
+
+		to_index = append(to_index, gt)
 	}
 
-	err = gt.InitializeTable(db)
+	if *spr || *all {
 
-	if err != nil {
-		logger.Fatal("failed to initialize 'geojson' table because %s", err)
+		st, err := tables.NewSPRTable()
+
+		if err != nil {
+			logger.Fatal("failed to create 'spr' table because %s", err)
+		}
+
+		err = st.InitializeTable(db)
+
+		if err != nil {
+			logger.Fatal("failed to initialize 'spr' table because %s", err)
+		}
+
+		to_index = append(to_index, st)
 	}
 
-	st, err := tables.NewSPRTable()
+	if *names || *all {
 
-	if err != nil {
-		logger.Fatal("failed to create 'spr' table because %s", err)
+		nm, err := tables.NewNamesTable()
+
+		if err != nil {
+			logger.Fatal("failed to create 'names' table because %s", err)
+		}
+
+		err = nm.InitializeTable(db)
+
+		if err != nil {
+			logger.Fatal("failed to initialize 'names' table because %s", err)
+		}
+
+		to_index = append(to_index, nm)
 	}
-
-	err = st.InitializeTable(db)
-
-	if err != nil {
-		logger.Fatal("failed to initialize 'spr' table because %s", err)
-	}
-
-	nm, err := tables.NewNamesTable()
-
-	if err != nil {
-		logger.Fatal("failed to create 'names' table because %s", err)
-	}
-
-	err = nm.InitializeTable(db)
-
-	if err != nil {
-		logger.Fatal("failed to initialize 'names' table because %s", err)
-	}
-
-	tables := []sqlite.Table{gt, st, nm}
 
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
 
@@ -92,7 +112,7 @@ func main() {
 
 		defer db.Unlock()
 
-		for _, t := range tables {
+		for _, t := range to_index {
 
 			err = t.IndexFeature(db, f)
 
@@ -117,39 +137,5 @@ func main() {
 		logger.Fatal("Failed to index paths in %s mode because: %s", *mode, err)
 	}
 
-	logger.Status("DONE INDEXING")
-
-	conn, err := db.Conn()
-
-	if err != nil {
-		logger.Fatal("Failed to get DB conn")
-	}
-
-	sql := fmt.Sprintf("SELECT body from %s LIMIT 1", gt.Name())
-
-	stmt, err := conn.Prepare(sql)
-
-	if err != nil {
-		logger.Fatal("Failed to prepare statement because: %s", err)
-	}
-
-	defer stmt.Close()
-
-	var body string
-	row := stmt.QueryRow()
-
-	row.Scan(&body)
-
-	if err != nil {
-		logger.Fatal("Failed to scane row because: %s", err)
-	}
-
-	f, err := feature.LoadFeature([]byte(body))
-
-	if err != nil {
-		logger.Fatal("Failed to scane row because: %s", err)
-	}
-
-	logger.Status("RETRIEVED %s (%s)", f.Id(), f.Name())
 	os.Exit(0)
 }
