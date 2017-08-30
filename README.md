@@ -1,6 +1,6 @@
 # go-whosonfirst-sqlite
 
-Go package for working with Who's On First documents and SQLite.
+Go package for working with Who's On First documents and SQLite databases.
 
 ## Install
 
