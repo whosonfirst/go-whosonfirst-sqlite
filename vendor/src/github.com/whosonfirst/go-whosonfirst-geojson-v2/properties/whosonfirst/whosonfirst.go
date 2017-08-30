@@ -302,10 +302,18 @@ func Names(f geojson.Feature) map[string][]string {
 
 	r := gjson.GetBytes(f.Bytes(), "properties")
 
+	if !r.Exists() {
+		return names_map
+	}
+
 	for k, v := range r.Map() {
 
 		if !strings.HasPrefix(k, "name:") {
 			continue
+		}
+
+		if !v.Exists(){
+		   continue
 		}
 
 		name := strings.Replace(k, "name:", "", 1)

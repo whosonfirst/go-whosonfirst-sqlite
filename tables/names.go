@@ -17,6 +17,7 @@ type NamesTable struct {
 
 type NamesRow struct {
 	Id           int64
+	Placetype    string
 	Language     string
 	ExtLang      string
 	Script       string
@@ -44,6 +45,7 @@ func (t *NamesTable) Name() string {
 func (t *NamesTable) Schema() string {
 	return fmt.Sprintf(`CREATE TABLE %s (
 	       id INTEGER NOT NULL PRIMARY KEY,
+	       placetype TEXT,
 	       language TEXT,
 	       extlang TEXT,
 	       script TEXT,
@@ -72,6 +74,7 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 	}
 
 	id := f.Id()
+	pt := f.Placetype()
 
 	lastmod := whosonfirst.LastModified(f)
 	names := whosonfirst.Names(f)
@@ -93,14 +96,14 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 			}
 
 			sql := fmt.Sprintf(`INSERT INTO %s (
-	    			id,
+	    			id, placetype,
 				language, extlang,
 				region, script, variant,
 	    			extension, privateuse,
 				name,
 	    			lastmodified
 			) VALUES (
-	    		  	?,
+	    		  	?, ?,
 				?, ?,
 				?, ?, ?,
 				?, ?,
@@ -116,7 +119,7 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 			defer stmt.Close()
 
-			_, err = stmt.Exec(id, lt.Language(), lt.ExtLang(), lt.Script(), lt.Region(), lt.Variant(), lt.Extension(), lt.PrivateUse(), n, lastmod)
+			_, err = stmt.Exec(id, pt, lt.Language(), lt.ExtLang(), lt.Script(), lt.Region(), lt.Variant(), lt.Extension(), lt.PrivateUse(), n, lastmod)
 
 			if err != nil {
 				return err
