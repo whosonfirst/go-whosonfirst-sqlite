@@ -131,6 +131,25 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		return err
 	}
 
-	_, err = conn.Exec(sql, args...)
-	return err
+	tx, err := conn.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.Prepare(sql)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(args...)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
