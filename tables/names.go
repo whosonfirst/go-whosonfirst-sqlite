@@ -1,7 +1,6 @@
 package tables
 
 import (
-	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
@@ -45,7 +44,7 @@ func (t *NamesTable) Name() string {
 
 func (t *NamesTable) Schema() string {
 	return fmt.Sprintf(`CREATE TABLE %s (
-	       id INTEGER NOT NULL PRIMARY KEY,
+	       id INTEGER NOT NULL,
 	       placetype TEXT,
 	       country TEXT,
 	       language TEXT,
@@ -66,8 +65,6 @@ func (t *NamesTable) InitializeTable(db sqlite.Database) error {
 }
 
 func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
-
-	return errors.New("please implement me")
 
 	conn, err := db.Conn()
 
@@ -106,7 +103,7 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 				name,
 	    			lastmodified
 			) VALUES (
-	    		  	?, ?,
+	    		  	?, ?, ?,
 				?, ?,
 				?, ?, ?,
 				?, ?,
