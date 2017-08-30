@@ -34,6 +34,7 @@ type SPRRow struct {
 	IsSuperseding int64   // derived INTEGER
 	SupersededBy  []int64 // ...
 	Supersedes    []int64 // ...
+	LastModified  int64   // properties.wof:lastmodified INTEGER
 }
 
 func NewSPRTable() (*SPRTable, error) {
@@ -75,7 +76,8 @@ func (t *SPRTable) Schema() string {
 			is_superseded INTEGER,
 			is_superseding INTEGER,
 			superseded_by TEXT,
-			supersedes TEXT
+			supersedes TEXT,
+			lastmodified INTEGER
 	)`
 
 	return fmt.Sprintf(sql, t.Name())
@@ -97,8 +99,9 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		max_latitude, max_longitude,
 		is_current, is_deprecated, is_ceased,
 		is_superseded, is_superseding,
-		superseded_by, supersedes)
-		VALUES (
+		superseded_by, supersedes,
+		lastmodified
+		) VALUES (
 		?, ?, ?, ?,
 		?, ?,
 		?, ?,
@@ -106,7 +109,9 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		?, ?,
 		?, ?, ?,
 		?, ?,
-		?, ?)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
+		?, ?,
+		?
+		)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
 
 	args := []interface{}{
 		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
@@ -117,6 +122,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		spr.IsCurrent().Flag(), spr.IsDeprecated().Flag(), spr.IsCeased().Flag(),
 		spr.IsSuperseded().Flag(), spr.IsSuperseding().Flag(),
 		"", "",
+		spr.LastModified(),
 	}
 
 	conn, err := db.Conn()

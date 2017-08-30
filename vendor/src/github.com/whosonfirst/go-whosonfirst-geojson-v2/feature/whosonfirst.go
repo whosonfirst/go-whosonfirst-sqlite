@@ -44,6 +44,7 @@ type WOFStandardPlacesResult struct {
 	MZIsDeprecated           int64   `json:"mz:is_deprecated"`
 	MZIsSuperseded           int64   `json:"mz:is_superseded"`
 	MZIsSuperseding          int64   `json:"mz:is_superseding"`
+	WOFLastModified          int64   `json:"wof:lastmodified"`
 }
 
 func EnsureWOFFeature(body []byte) error {
@@ -206,6 +207,8 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 	superseded_by := whosonfirst.SupersededBy(f)
 	supersedes := whosonfirst.Supersedes(f)
 
+	lastmod := whosonfirst.LastModified(f)
+
 	spr := WOFStandardPlacesResult{
 		WOFId:           id,
 		WOFParentId:     parent_id,
@@ -228,6 +231,7 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 		MZIsDeprecated:  is_deprecated.Flag(),
 		MZIsSuperseded:  is_superseded.Flag(),
 		MZIsSuperseding: is_superseding.Flag(),
+		WOFLastModified: lastmod,
 	}
 
 	return &spr, nil
@@ -315,6 +319,10 @@ func (spr *WOFStandardPlacesResult) SupersededBy() []int64 {
 
 func (spr *WOFStandardPlacesResult) Supersedes() []int64 {
 	return spr.WOFSupersedes
+}
+
+func (spr *WOFStandardPlacesResult) LastModified() int64 {
+	return spr.WOFLastModified
 }
 
 // we're going to assume that this won't fail since we already go through

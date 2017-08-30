@@ -81,6 +81,7 @@ func main() {
 			err = t.IndexFeature(db, f)
 
 			if err != nil {
+				logger.Status("failed to index feature in '%s' table because %s", t.Name(), err)
 				return err
 			}
 		}
@@ -91,13 +92,13 @@ func main() {
 	indexer, err := index.NewIndexer(*mode, cb)
 
 	if err != nil {
-		logger.Fatal("Failed to create new indexer because %s", err)
+		logger.Fatal("Failed to create new indexer because: %s", err)
 	}
 
 	err = indexer.IndexPaths(flag.Args())
 
 	if err != nil {
-		logger.Fatal("Failed to index paths in %s mode because %s", *mode, err)
+		logger.Fatal("Failed to index paths in %s mode because: %s", *mode, err)
 	}
 
 	logger.Status("DONE INDEXING")
@@ -113,7 +114,7 @@ func main() {
 	stmt, err := conn.Prepare(sql)
 
 	if err != nil {
-		logger.Fatal("Failed to prepare statement because %s", err)
+		logger.Fatal("Failed to prepare statement because: %s", err)
 	}
 
 	defer stmt.Close()
@@ -124,13 +125,13 @@ func main() {
 	row.Scan(&body)
 
 	if err != nil {
-		logger.Fatal("Failed to scane row because %s", err)
+		logger.Fatal("Failed to scane row because: %s", err)
 	}
 
 	f, err := feature.LoadFeature([]byte(body))
 
 	if err != nil {
-		logger.Fatal("Failed to scane row because %s", err)
+		logger.Fatal("Failed to scane row because: %s", err)
 	}
 
 	logger.Status("RETRIEVED %s (%s)", f.Id(), f.Name())
