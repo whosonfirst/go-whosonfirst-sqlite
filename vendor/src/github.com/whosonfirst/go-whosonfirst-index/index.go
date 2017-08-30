@@ -34,6 +34,20 @@ type Indexer struct {
 	count   int64
 }
 
+func Modes() []string {
+
+	return []string{
+		"directory",
+		"feature",
+		"feature-collection",
+		"files",
+		"geojson-ls",
+		"meta",
+		"path",
+		"repo",
+	}
+}
+
 func ContextForPath(path string) (context.Context, error) {
 
 	key := IndexerContextKey("path")

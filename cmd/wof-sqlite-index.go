@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-index"
 	"github.com/whosonfirst/go-whosonfirst-index/utils"
@@ -12,11 +13,15 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite/tables"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
 
-	mode := flag.String("mode", "files", "The mode to use importing data.")
+     	valid_modes := strings.Join(index.Modes(), ",")
+	desc_modes := fmt.Sprintf("The mode to use importing data. Valid modes are: %s.", valid_modes)
+
+	mode := flag.String("mode", "files", desc_modes)
 
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
