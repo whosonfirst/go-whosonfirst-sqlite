@@ -16,6 +16,20 @@ All of this package's dependencies are bundled with the code in the `vendor` dir
 
 It's probably still too soon. Lots of things may still change.
 
+## Tables
+
+### geojson
+
+_Please write me._
+
+### names
+
+_Please write me._
+
+### spr
+
+_Please write me._
+
 ## Tools
 
 ### wof-sqlite-index
