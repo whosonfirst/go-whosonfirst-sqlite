@@ -8,3 +8,4 @@ bin
 *.json
 .travis.yml
 *.db
+*.db-journal

@@ -33,7 +33,12 @@ func (t *GeoJSONTable) Name() string {
 }
 
 func (t *GeoJSONTable) Schema() string {
-	return fmt.Sprintf("CREATE TABLE %s (id INTEGER NOT NULL PRIMARY KEY, body TEXT, lastmodified INTEGER)", t.Name())
+
+	return fmt.Sprintf(`CREATE TABLE %s (
+		id INTEGER NOT NULL PRIMARY KEY,
+		body TEXT,
+		lastmodified INTEGER
+	)`, t.Name())
 }
 
 func (t *GeoJSONTable) InitializeTable(db sqlite.Database) error {
@@ -60,7 +65,11 @@ func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error
 		return err
 	}
 
-	sql := fmt.Sprintf("INSERT INTO %s (id, body, lastmodified) values(?, ?, ?)", t.Name())
+	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
+		id, body, lastmodified
+	) VALUES (
+		, ?, ?
+	)`, t.Name())
 
 	stmt, err := tx.Prepare(sql)
 

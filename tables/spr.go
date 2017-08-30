@@ -91,7 +91,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		return err
 	}
 
-	sql := fmt.Sprintf(`INSERT INTO %s (
+	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
 		id, parent_id, name, placetype,
 		country, repo,
 		latitude, longitude,

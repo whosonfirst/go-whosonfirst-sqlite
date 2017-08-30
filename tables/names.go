@@ -72,7 +72,26 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		return err
 	}
 
+	tx, err := conn.Begin()
+
 	id := f.Id()
+
+	sql := fmt.Sprintf(`DELETE FROM %s WHERE id = ?`, t.Name())
+
+	stmt, err := tx.Prepare(sql)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+
+	if err != nil {
+		return err
+	}
+
 	pt := f.Placetype()
 	co := whosonfirst.Country(f)
 
@@ -88,8 +107,6 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		}
 
 		for _, n := range names {
-
-			tx, err := conn.Begin()
 
 			if err != nil {
 				return err
@@ -125,14 +142,8 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 				return err
 			}
 
-			err = tx.Commit()
-
-			if err != nil {
-				return err
-			}
-
 		}
 	}
 
-	return nil
+	return tx.Commit()
 }
