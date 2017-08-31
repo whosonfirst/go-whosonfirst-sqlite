@@ -18,7 +18,7 @@ import (
 
 func main() {
 
-     	valid_modes := strings.Join(index.Modes(), ",")
+	valid_modes := strings.Join(index.Modes(), ",")
 	desc_modes := fmt.Sprintf("The mode to use importing data. Valid modes are: %s.", valid_modes)
 
 	dsn := flag.String("dsn", ":memory:", "")
@@ -101,13 +101,13 @@ func main() {
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
 
 		/*
-		path, err := index.PathForContext(ctx)
+			path, err := index.PathForContext(ctx)
 
-		if err != nil {
-			return err
-		}
+			if err != nil {
+				return err
+			}
 
-		logger.Status("process %s", path)
+			logger.Status("process %s", path)
 		*/
 
 		ok, err := utils.IsPrincipalWOFRecord(fh, ctx)
