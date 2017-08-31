@@ -21,14 +21,13 @@ func main() {
      	valid_modes := strings.Join(index.Modes(), ",")
 	desc_modes := fmt.Sprintf("The mode to use importing data. Valid modes are: %s.", valid_modes)
 
+	dsn := flag.String("dsn", ":memory:", "")
 	mode := flag.String("mode", "files", desc_modes)
 
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
 	names := flag.Bool("names", false, "Index the 'names' table")
 	all := flag.Bool("all", false, "Index all tables")
-
-	dsn := flag.String("dsn", ":memory:", "")
 
 	flag.Parse()
 
@@ -95,7 +94,21 @@ func main() {
 		to_index = append(to_index, nm)
 	}
 
+	if len(to_index) == 0 {
+		logger.Fatal("You forgot to specify which (any) tables to index")
+	}
+
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
+
+		/*
+		path, err := index.PathForContext(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		logger.Status("process %s", path)
+		*/
 
 		ok, err := utils.IsPrincipalWOFRecord(fh, ctx)
 

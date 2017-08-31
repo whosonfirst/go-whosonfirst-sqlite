@@ -82,10 +82,14 @@ For example:
 ./bin/wof-sqlite-index -dsn microhoods.db -all -mode meta /usr/local/data/whosonfirst-data/meta/wof-microhood-latest.csv
 ```
 
-You can also use `wof-sqlite-index` in combination with the [go-whosonfirst-api](https://github.com/whosonfirst/go-whosonfirst-api) `wof-api` tool and populate your SQLite database from API results. For example, here's how you might index all the neighbourhoods in Montreal:
+You can also use `wof-sqlite-index` in combination with the [go-whosonfirst-api](https://github.com/whosonfirst/go-whosonfirst-api) `wof-api` tool and populate your SQLite database by piping API results on STDIN. For example, here's how you might index all the neighbourhoods in Montreal:
 
 ```
 /usr/local/bin/wof-api -param method=whosonfirst.places.getDescendants -param id=101736545 \
 -param placetype=neighbourhood -param api_key=mapzen-xxxxxx -geojson-ls | \
-/usr/local/bin/wof-sqlite-index -dsn microhoods.db -all -mode geojson-ls STDIN
+/usr/local/bin/wof-sqlite-index -dsn neighbourhoods.db -all -mode geojson-ls STDIN
 ```
+
+## See also
+
+* https://sqlite.org/

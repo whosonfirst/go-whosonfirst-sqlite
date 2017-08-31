@@ -68,7 +68,7 @@ func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
 		id, body, lastmodified
 	) VALUES (
-		, ?, ?
+		?, ?, ?
 	)`, t.Name())
 
 	stmt, err := tx.Prepare(sql)
