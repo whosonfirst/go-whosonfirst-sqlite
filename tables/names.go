@@ -43,7 +43,8 @@ func (t *NamesTable) Name() string {
 }
 
 func (t *NamesTable) Schema() string {
-	return fmt.Sprintf(`CREATE TABLE %s (
+
+	sql := `CREATE TABLE %s (
 	       id INTEGER NOT NULL,
 	       placetype TEXT,
 	       country TEXT,
@@ -56,7 +57,13 @@ func (t *NamesTable) Schema() string {
 	       privateuse TEXT,
 	       name TEXT,
 	       lastmodified INTEGER
-	)`, t.Name())
+	);
+
+	CREATE INDEX names_by_lastmod ON %s (lastmodified);
+	CREATE INDEX names_by_country ON %s (country,placetype,privateuse);
+	`
+
+	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name())
 }
 
 func (t *NamesTable) InitializeTable(db sqlite.Database) error {

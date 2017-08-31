@@ -34,11 +34,16 @@ func (t *GeoJSONTable) Name() string {
 
 func (t *GeoJSONTable) Schema() string {
 
-	return fmt.Sprintf(`CREATE TABLE %s (
+	sql := `CREATE TABLE %s (
 		id INTEGER NOT NULL PRIMARY KEY,
 		body TEXT,
 		lastmodified INTEGER
-	)`, t.Name())
+	);
+
+	CREATE INDEX geojson_by_lastmod ON %s (lastmodified);
+	`
+
+	return fmt.Sprintf(sql, t.Name(), t.Name())
 }
 
 func (t *GeoJSONTable) InitializeTable(db sqlite.Database) error {

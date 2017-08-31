@@ -78,9 +78,12 @@ func (t *SPRTable) Schema() string {
 			superseded_by TEXT,
 			supersedes TEXT,
 			lastmodified INTEGER
-	)`
+	);
 
-	return fmt.Sprintf(sql, t.Name())
+	CREATE INDEX spr_by_lastmod ON %s (lastmodified);
+	`
+
+	return fmt.Sprintf(sql, t.Name(), t.Name())
 }
 
 func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
