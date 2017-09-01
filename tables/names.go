@@ -29,7 +29,24 @@ type NamesRow struct {
 	LastModified int64
 }
 
-func NewNamesTable() (*NamesTable, error) {
+func NewNamesTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+
+	t, err := NewNamesTable()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = t.InitializeTable(db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
+func NewNamesTable() (sqlite.Table, error) {
 
 	t := NamesTable{
 		name: "names",

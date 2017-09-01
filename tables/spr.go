@@ -37,7 +37,24 @@ type SPRRow struct {
 	LastModified  int64   // properties.wof:lastmodified INTEGER
 }
 
-func NewSPRTable() (*SPRTable, error) {
+func NewSPRTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+
+	t, err := NewSPRTable()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = t.InitializeTable(db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
+func NewSPRTable() (sqlite.Table, error) {
 
 	t := SPRTable{
 		name: "spr",

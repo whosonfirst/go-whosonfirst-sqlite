@@ -24,10 +24,11 @@ func main() {
 	dsn := flag.String("dsn", ":memory:", "")
 	mode := flag.String("mode", "files", desc_modes)
 
-	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
-	spr := flag.Bool("spr", false, "Index the 'spr' table")
-	names := flag.Bool("names", false, "Index the 'names' table")
 	all := flag.Bool("all", false, "Index all tables")
+	ancestors := flag.Bool("ancestors", false, "Index the 'ancestors' tables")
+	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
+	names := flag.Bool("names", false, "Index the 'names' table")
+	spr := flag.Bool("spr", false, "Index the 'spr' table")
 
 	flag.Parse()
 
@@ -45,16 +46,10 @@ func main() {
 
 	if *geojson || *all {
 
-		gt, err := tables.NewGeoJSONTable()
+		gt, err := tables.NewGeoJSONTableWithDatabase(db)
 
 		if err != nil {
 			logger.Fatal("failed to create 'geojson' table because %s", err)
-		}
-
-		err = gt.InitializeTable(db)
-
-		if err != nil {
-			logger.Fatal("failed to initialize 'geojson' table because %s", err)
 		}
 
 		to_index = append(to_index, gt)
@@ -62,16 +57,10 @@ func main() {
 
 	if *spr || *all {
 
-		st, err := tables.NewSPRTable()
+		st, err := tables.NewSPRTableWithDatabase(db)
 
 		if err != nil {
 			logger.Fatal("failed to create 'spr' table because %s", err)
-		}
-
-		err = st.InitializeTable(db)
-
-		if err != nil {
-			logger.Fatal("failed to initialize 'spr' table because %s", err)
 		}
 
 		to_index = append(to_index, st)
@@ -79,19 +68,24 @@ func main() {
 
 	if *names || *all {
 
-		nm, err := tables.NewNamesTable()
+		nm, err := tables.NewNamesTableWithDatabase(db)
 
 		if err != nil {
 			logger.Fatal("failed to create 'names' table because %s", err)
 		}
 
-		err = nm.InitializeTable(db)
+		to_index = append(to_index, nm)
+	}
+
+	if *ancestors || *all {
+
+		an, err := tables.NewAncestorsTableWithDatabase(db)
 
 		if err != nil {
-			logger.Fatal("failed to initialize 'names' table because %s", err)
+			logger.Fatal("failed to create 'ancestors' table because %s", err)
 		}
 
-		to_index = append(to_index, nm)
+		to_index = append(to_index, an)
 	}
 
 	if len(to_index) == 0 {

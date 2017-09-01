@@ -32,6 +32,9 @@ func main (){
 	db, _ := database.NewDB("wof.db")
 	defer db.Close()
 
+	# Or you could just invoke these two calls with the handy:
+	# st, _ := tables.NewSPRTableWithDatabase(db)
+
 	st, _ := tables.NewSPRTable()
 	st.InitializeTable(db)
 
@@ -43,6 +46,21 @@ func main (){
 _Error handling has been removed for the sake of brevity._
 
 ## Tables
+
+### ancestors
+
+```
+CREATE TABLE ancestors (
+	id INTEGER NOT NULL,
+	ancestor_id INTEGER NOT NULL,
+	ancestor_placetype TEXT,
+	lastmodified INTEGER
+);
+
+CREATE INDEX ancestors_by_id ON ancestors (id,ancestor_placetype,lastmodified);
+CREATE INDEX ancestors_by_ancestor ON ancestors (ancestor_id,ancestor_placetype,lastmodified);
+CREATE INDEX ancestors_by_lastmod ON ancestors (lastmodified);
+```
 
 ### geojson
 

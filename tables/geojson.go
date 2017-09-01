@@ -19,7 +19,24 @@ type GeoJSONRow struct {
 	LastModified int64
 }
 
-func NewGeoJSONTable() (*GeoJSONTable, error) {
+func NewGeoJSONTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+
+	t, err := NewGeoJSONTable()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = t.InitializeTable(db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
+func NewGeoJSONTable() (sqlite.Table, error) {
 
 	t := GeoJSONTable{
 		name: "geojson",
