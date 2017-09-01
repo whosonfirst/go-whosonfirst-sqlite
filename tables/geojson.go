@@ -40,8 +40,7 @@ func (t *GeoJSONTable) Schema() string {
 		lastmodified INTEGER
 	);
 
-	CREATE INDEX geojson_by_lastmod ON %s (lastmodified);
-	`
+	CREATE INDEX geojson_by_lastmod ON %s (lastmodified);`
 
 	return fmt.Sprintf(sql, t.Name(), t.Name())
 }
