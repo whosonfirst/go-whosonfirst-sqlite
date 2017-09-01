@@ -60,10 +60,16 @@ func (t *NamesTable) Schema() string {
 	);
 
 	CREATE INDEX names_by_lastmod ON %s (lastmodified);
-	CREATE INDEX names_by_country ON %s (country,placetype,privateuse);
+	CREATE INDEX names_by_country ON %s (country,privateuse,placetype);
+	CREATE INDEX names_by_language ON %s (language,privateuse,placetype);
+	CREATE INDEX names_by_placetype ON %s (placetype,country,privateuse);
+	CREATE INDEX names_by_name ON %s (name, placetype, country);
+	CREATE INDEX names_by_name_private ON %s (name, privateuse, placetype, country);
+	CREATE INDEX names_by_wofid ON %s (id);
 	`
 
-	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name())
+	// this is a bit stupid really... (20170901/thisisaaronland)
+	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
 }
 
 func (t *NamesTable) InitializeTable(db sqlite.Database) error {

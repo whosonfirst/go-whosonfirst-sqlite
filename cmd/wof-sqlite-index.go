@@ -100,15 +100,11 @@ func main() {
 
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
 
-		/*
-			path, err := index.PathForContext(ctx)
+		path, err := index.PathForContext(ctx)
 
-			if err != nil {
-				return err
-			}
-
-			logger.Status("process %s", path)
-		*/
+		if err != nil {
+			return err
+		}
 
 		ok, err := utils.IsPrincipalWOFRecord(fh, ctx)
 
@@ -123,6 +119,7 @@ func main() {
 		f, err := feature.LoadWOFFeatureFromReader(fh)
 
 		if err != nil {
+			logger.Warning("failed to load feature (%s) because %s", path, err)
 			return err
 		}
 
@@ -135,7 +132,7 @@ func main() {
 			err = t.IndexFeature(db, f)
 
 			if err != nil {
-				logger.Status("failed to index feature in '%s' table because %s", t.Name(), err)
+				logger.Warning("failed to index feature (%s) in '%s' table because %s", path, t.Name(), err)
 				return err
 			}
 		}

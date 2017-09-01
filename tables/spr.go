@@ -81,9 +81,22 @@ func (t *SPRTable) Schema() string {
 	);
 
 	CREATE INDEX spr_by_lastmod ON %s (lastmodified);
+	CREATE INDEX spr_by_parent ON %s (parent_id, is_current, lastmodified);
+	CREATE INDEX spr_by_placetype ON %s (placetype, is_current, lastmodified);
+	CREATE INDEX spr_by_country ON %s (country, placetype, is_current, lastmodified);
+	CREATE INDEX spr_by_name ON %s (name, placetype, is_current, lastmodified);
+	CREATE INDEX spr_by_centroid ON %s (latitude, longitude, is_current, lastmodified);
+	CREATE INDEX spr_by_bbox ON %s (min_latitude, min_longitude, max_latitude, max_longitude, placetype, is_current, lastmodified);
+	CREATE INDEX spr_by_repo ON %s (repo, lastmodified);
+	CREATE INDEX spr_by_current ON %s (is_current, lastmodified);
+	CREATE INDEX spr_by_deprecated ON %s (is_deprecated, lastmodified);
+	CREATE INDEX spr_by_ceased ON %s (is_ceased, lastmodified);
+	CREATE INDEX spr_by_superseded ON %s (is_superseded, lastmodified);
+	CREATE INDEX spr_by_superseding ON %s (is_superseding, lastmodified);
 	`
 
-	return fmt.Sprintf(sql, t.Name(), t.Name())
+	// so dumb...
+	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
 }
 
 func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
