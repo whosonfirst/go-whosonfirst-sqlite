@@ -69,7 +69,7 @@ func (t *NamesTable) Schema() string {
 	`
 
 	// this is a bit stupid really... (20170901/thisisaaronland)
-	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
+	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
 }
 
 func (t *NamesTable) InitializeTable(db sqlite.Database) error {
