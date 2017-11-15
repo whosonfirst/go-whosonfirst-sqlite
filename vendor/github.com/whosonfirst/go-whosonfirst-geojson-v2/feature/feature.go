@@ -74,15 +74,14 @@ func UnmarshalFeature(body []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	properties := []string{
+	all := []string{
 		"geometry",
 		"geometry.type",
 		"geometry.coordinates",
-		"properties",
-		"id",
+		"type",
 	}
 
-	err = utils.EnsureProperties(body, properties)
+	err = utils.EnsureProperties(body, all)
 
 	if err != nil {
 		return nil, err
