@@ -13,8 +13,10 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite/tables"
 	"io"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -33,8 +35,11 @@ func main() {
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
 	live_hard := flag.Bool("live-hard-die-fast", false, "...")
 	timings := flag.Bool("timings", false, "...")
+	var procs = flag.Int("processes", (runtime.NumCPU() * 2), "The number of concurrent processes to index data with")
 
 	flag.Parse()
+
+	runtime.GOMAXPROCS(*procs)
 
 	logger := log.SimpleWOFLogger()
 
@@ -168,6 +173,12 @@ func main() {
 		return nil
 	}
 
+	indexer, err := index.NewIndexer(*mode, cb)
+
+	if err != nil {
+		logger.Fatal("Failed to create new indexer because: %s", err)
+	}
+
 	done_ch := make(chan bool)
 	t1 := time.Now()
 
@@ -175,14 +186,16 @@ func main() {
 
 		t2 := time.Since(t1)
 
+		i := atomic.LoadInt64(&indexer.Indexed) // please just make this part of go-whosonfirst-index
+
 		mu.RLock()
 		defer mu.RUnlock()
 
 		for t, d := range table_timings {
-			logger.Status("time to index %s: %v", t, d)
+			logger.Status("time to index %s (%d) : %v", t, i, d)
 		}
 
-		logger.Status("time to index all: %v", t2)
+		logger.Status("time to index all (%d) : %v", i, t2)
 	}
 
 	if *timings {
@@ -200,12 +213,6 @@ func main() {
 			}
 		}()
 
-	}
-
-	indexer, err := index.NewIndexer(*mode, cb)
-
-	if err != nil {
-		logger.Fatal("Failed to create new indexer because: %s", err)
 	}
 
 	err = indexer.IndexPaths(flag.Args())
