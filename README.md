@@ -180,16 +180,24 @@ Where `geojson.Feature` is defined in the [go-whosonfirst-geojson-v2](https://gi
 Usage of ./bin/wof-sqlite-index:
   -all
     	Index all tables
+  -ancestors
+    	Index the 'ancestors' tables
   -dsn string
     	 (default ":memory:")
   -geojson
     	Index the 'geojson' table
+  -live-hard-die-fast
+    	Enable various performance-related pragmas at the expense of possible (unlikely) database corruption
   -mode string
-    	The mode to use importing data. Valid modes are: directory,feature,feature-collection,geojson-ls,meta,path,repo (default "files")
+    	The mode to use importing data. Valid modes are: directory,feature,feature-collection,files,geojson-ls,meta,path,repo. (default "files")
   -names
     	Index the 'names' table
+  -processes int
+    	The number of concurrent processes to index data with (default 16)
   -spr
     	Index the 'spr' table
+  -timings
+    	Display timings during and after indexing
 ```
 
 For example:

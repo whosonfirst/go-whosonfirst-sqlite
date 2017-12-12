@@ -33,8 +33,8 @@ func main() {
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
 	names := flag.Bool("names", false, "Index the 'names' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
-	live_hard := flag.Bool("live-hard-die-fast", false, "...")
-	timings := flag.Bool("timings", false, "...")
+	live_hard := flag.Bool("live-hard-die-fast", false, "Enable various performance-related pragmas at the expense of possible (unlikely) database corruption")
+	timings := flag.Bool("timings", false, "Display timings during and after indexing")
 	var procs = flag.Int("processes", (runtime.NumCPU() * 2), "The number of concurrent processes to index data with")
 
 	flag.Parse()
