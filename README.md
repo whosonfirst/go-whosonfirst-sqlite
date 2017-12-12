@@ -12,10 +12,6 @@ make bin
 
 All of this package's dependencies are bundled with the code in the `vendor` directory.
 
-## Important
-
-It's probably still too soon. Lots of things may still change.
-
 ## Example
 
 ### Simple
@@ -239,4 +235,5 @@ done
 
 ## See also
 
+* https://whosonfirst.mapzen.com/sqlite
 * https://sqlite.org/
