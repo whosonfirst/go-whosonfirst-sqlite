@@ -202,7 +202,7 @@ For example:
 ./bin/wof-sqlite-index -live-hard-die-fast -dsn microhoods.db -all -mode meta /usr/local/data/whosonfirst-data/meta/wof-microhood-latest.csv
 ```
 
-See the way we're passing a `-live-hard-die-fast`. That is to enable a number of [performace-related PRAGMA commands](https://blog.devart.com/increasing-sqlite-performance.html) without which database index can be prohibitive and time-consuming. These is a small but unlikely chance of database corruptions when this flag is enabled.
+See the way we're passing a `-live-hard-die-fast` flag? That is to enable a number of [performace-related PRAGMA commands](https://blog.devart.com/increasing-sqlite-performance.html) without which database index can be prohibitive and time-consuming. These is a small but unlikely chance of database corruptions when this flag is enabled.
 
 You can also use `wof-sqlite-index` in combination with the [go-whosonfirst-api](https://github.com/whosonfirst/go-whosonfirst-api) `wof-api` tool and populate your SQLite database by piping API results on STDIN. For example, here's how you might index all the neighbourhoods in Montreal:
 
