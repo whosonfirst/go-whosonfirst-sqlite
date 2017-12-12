@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
+	_ "log"
 	"sync"
 )
 
@@ -29,6 +30,35 @@ func NewDB(dsn string) (*SQLiteDatabase, error) {
 	}
 
 	return &db, err
+}
+
+// https://blog.devart.com/increasing-sqlite-performance.html
+// https://www.sqlite.org/pragma.html#pragma_journal_mode
+
+func (db *SQLiteDatabase) LiveHardDieFast() error {
+
+	conn, err := db.Conn()
+
+	if err != nil {
+		return err
+	}
+
+	pragma := []string{
+		"PRAGMA JOURNAL_MODE=OFF",
+		"PRAGMA SYNCHRONOUS=OFF",
+		"PRAGMA LOCKING_MODE=EXCLUSIVE",
+	}
+
+	for _, p := range pragma {
+
+		_, err = conn.Exec(p)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (db *SQLiteDatabase) Lock() {

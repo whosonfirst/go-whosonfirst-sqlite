@@ -14,6 +14,8 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
+	"time"
 )
 
 func main() {
@@ -29,6 +31,8 @@ func main() {
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
 	names := flag.Bool("names", false, "Index the 'names' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
+	live_hard := flag.Bool("live-hard-die-fast", false, "...")
+	timings := flag.Bool("timings", false, "...")
 
 	flag.Parse()
 
@@ -41,6 +45,15 @@ func main() {
 	}
 
 	defer db.Close()
+
+	if *live_hard {
+
+		err = db.LiveHardDieFast()
+
+		if err != nil {
+			logger.Fatal("Unable to live hard and die fast so just dying fast instead, because %s", err)
+		}
+	}
 
 	to_index := make([]sqlite.Table, 0)
 
@@ -92,6 +105,9 @@ func main() {
 		logger.Fatal("You forgot to specify which (any) tables to index")
 	}
 
+	table_timings := make(map[string]time.Duration)
+	mu := new(sync.RWMutex)
+
 	cb := func(fh io.Reader, ctx context.Context, args ...interface{}) error {
 
 		path, err := index.PathForContext(ctx)
@@ -123,15 +139,67 @@ func main() {
 
 		for _, t := range to_index {
 
+			t1 := time.Now()
+
 			err = t.IndexFeature(db, f)
 
 			if err != nil {
 				logger.Warning("failed to index feature (%s) in '%s' table because %s", path, t.Name(), err)
 				return err
 			}
+
+			t2 := time.Since(t1)
+
+			n := t.Name()
+
+			mu.Lock()
+
+			_, ok := table_timings[n]
+
+			if ok {
+				table_timings[n] += t2
+			} else {
+				table_timings[n] = t2
+			}
+
+			mu.Unlock()
 		}
 
 		return nil
+	}
+
+	done_ch := make(chan bool)
+	t1 := time.Now()
+
+	show_timings := func() {
+
+		t2 := time.Since(t1)
+
+		mu.RLock()
+		defer mu.RUnlock()
+
+		for t, d := range table_timings {
+			logger.Status("time to index %s: %v", t, d)
+		}
+
+		logger.Status("time to index all: %v", t2)
+	}
+
+	if *timings {
+
+		go func() {
+
+			for {
+
+				select {
+				case <-done_ch:
+					return
+				case <-time.After(1 * time.Minute):
+					show_timings()
+				}
+			}
+		}()
+
 	}
 
 	indexer, err := index.NewIndexer(*mode, cb)
@@ -145,6 +213,9 @@ func main() {
 	if err != nil {
 		logger.Fatal("Failed to index paths in %s mode because: %s", *mode, err)
 	}
+
+	done_ch <- true
+	show_timings()
 
 	os.Exit(0)
 }
