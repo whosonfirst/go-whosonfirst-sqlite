@@ -5,6 +5,51 @@ import (
 	"os"
 )
 
+func HasTable(db sqlite.Database, table string) (bool, error) {
+
+	has_table := false
+
+	_, err := os.Stat(db.DSN())
+
+	if os.IsNotExist(err) {
+		has_table = false
+	} else {
+
+		conn, err := db.Conn()
+
+		if err != nil {
+			return false, err
+		}
+
+		sql := "SELECT name FROM sqlite_master WHERE type='table'"
+
+		rows, err := conn.Query(sql)
+
+		if err != nil {
+			return false, err
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+
+			var name string
+			err := rows.Scan(&name)
+
+			if err != nil {
+				return false, err
+			}
+
+			if name == table {
+				has_table = true
+				break
+			}
+		}
+	}
+
+	return has_table, nil
+}
+
 func CreateTableIfNecessary(db sqlite.Database, t sqlite.Table) error {
 
 	create := false
@@ -13,44 +58,14 @@ func CreateTableIfNecessary(db sqlite.Database, t sqlite.Table) error {
 		create = true
 	} else {
 
-		_, err := os.Stat(db.DSN())
+		has_table, err := HasTable(db, t.Name())
 
-		if os.IsNotExist(err) {
+		if err != nil {
+			return err
+		}
+
+		if !has_table {
 			create = true
-		} else {
-
-			conn, err := db.Conn()
-
-			if err != nil {
-				return err
-			}
-
-			sql := "SELECT name FROM sqlite_master WHERE type='table'"
-
-			rows, err := conn.Query(sql)
-
-			if err != nil {
-				return err
-			}
-
-			defer rows.Close()
-
-			create = true
-
-			for rows.Next() {
-
-				var name string
-				err := rows.Scan(&name)
-
-				if err != nil {
-					return err
-				}
-
-				if name == t.Name() {
-					create = false
-					break
-				}
-			}
 		}
 	}
 
