@@ -44,6 +44,9 @@ func main() {
 
 	logger := log.SimpleWOFLogger()
 
+	stdout := io.Writer(os.Stdout)
+	logger.AddLogger(stdout, "status")
+
 	db, err := database.NewDB(*dsn)
 
 	if err != nil {

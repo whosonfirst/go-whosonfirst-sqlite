@@ -60,7 +60,7 @@ CREATE INDEX ancestors_by_lastmod ON ancestors (lastmodified);
 
 ### concordances
 
-``
+```
 CREATE TABLE concordances (
 	id INTEGER NOT NULL,
 	concordance_id INTEGER NOT NULL,
