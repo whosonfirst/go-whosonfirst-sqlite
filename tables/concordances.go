@@ -62,7 +62,7 @@ func (t *ConcordancesTable) Schema() string {
 	CREATE INDEX concordances_by_id ON %s (id,lastmodified);
 	CREATE INDEX concordances_by_other_id ON %s (other_source,other_id);	
 	CREATE INDEX concordances_by_other_lastmod ON %s (other_source,other_id,lastmodified);
-	CREATE INDEX ancestors_by_lastmod ON %s (lastmodified);`
+	CREATE INDEX concordances_by_lastmod ON %s (lastmodified);`
 
 	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
 }
