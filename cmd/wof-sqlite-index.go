@@ -30,6 +30,7 @@ func main() {
 
 	all := flag.Bool("all", false, "Index all tables")
 	ancestors := flag.Bool("ancestors", false, "Index the 'ancestors' tables")
+	concordances := flag.Bool("concordances", false, "Index the 'concordances' tables")
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
 	names := flag.Bool("names", false, "Index the 'names' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
@@ -104,6 +105,17 @@ func main() {
 		}
 
 		to_index = append(to_index, an)
+	}
+
+	if *concordances || *all {
+
+		cn, err := tables.NewConcordancesTableWithDatabase(db)
+
+		if err != nil {
+			logger.Fatal("failed to create 'concordances' table because %s", err)
+		}
+
+		to_index = append(to_index, cn)
 	}
 
 	if len(to_index) == 0 {
