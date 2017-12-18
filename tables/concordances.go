@@ -54,13 +54,13 @@ func (t *ConcordancesTable) Schema() string {
 
 	sql := `CREATE TABLE %s (
 		id INTEGER NOT NULL,
-		concordance_id INTEGER NOT NULL,
-		concordance_souce TEXT,
+		other_id INTEGER NOT NULL,
+		other_source TEXT,
 		lastmodified INTEGER
 	);
 
 	CREATE INDEX concordances_by_id ON %s (id,lastmodified);
-	CREATE INDEX concordances_by_other ON %s (other_source,other_id);	
+	CREATE INDEX concordances_by_other_id ON %s (other_source,other_id);	
 	CREATE INDEX concordances_by_other_lastmod ON %s (other_source,other_id,lastmodified);
 	CREATE INDEX ancestors_by_lastmod ON %s (lastmodified);`
 
