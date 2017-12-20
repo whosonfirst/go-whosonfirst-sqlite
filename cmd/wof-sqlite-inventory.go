@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/dustin/go-humanize"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/assets/html"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"html/template"
@@ -30,7 +31,7 @@ type Report struct {
 	Count          int       `json:"count"`
 	Size           int64     `json:"size"`
 	SizeCompressed int64     `json:"size_compressed"`
-	Sha256Sum      string    `json:"sha256_sum"`
+	Sha256Compressed      string    `json:"sha256_compressed"`
 	LastUpdate     time.Time `json:"last_update"`
 	LastModified   time.Time `json:"lastmodified"`
 }
@@ -47,12 +48,28 @@ func NewReport(path string) Report {
 		Count:          0,
 		Size:           0,
 		SizeCompressed: 0,
-		Sha256Sum:      "",
+		Sha256Compressed:      "",
 		LastModified:   now,
 		LastUpdate:     now,
 	}
 
 	return r
+}
+
+func (r Report) SizeString() string {
+     return humanize.Bytes(uint64(r.Size))
+}
+
+func (r Report) SizeCompressedString() string {
+     return humanize.Bytes(uint64(r.SizeCompressed))
+}
+
+func (r Report) LastModifiedString() string {
+	return r.LastModified.Format(time.RFC3339)
+}
+
+func (r Report) LastUpdateString() string {
+	return r.LastUpdate.Format(time.RFC3339)
 }
 
 func Compress(r Report, report_ch chan Report, done_ch chan bool, err_ch chan error) {
@@ -122,7 +139,7 @@ func Compress(r Report, report_ch chan Report, done_ch chan bool, err_ch chan er
 		return
 	}
 
-	r.Sha256Sum = h
+	r.Sha256Compressed = h
 
 	report_ch <- r
 	return
@@ -314,14 +331,8 @@ func main() {
 		}
 	}
 
-	/*
-		count_throttle := 8
-		throttle_ch := make(chan bool, count_throttle)
-
-		for i :=0; i < count_throttle; i ++ {
-			throttle_ch <- true
-		}
-	*/
+	// please for to make throttling work
+	// (20171220/thisisaaronland)
 
 	for _, r := range reports {
 
@@ -338,12 +349,10 @@ func main() {
 
 		select {
 		case <-done_ch:
-			log.Println("DONE", remaining)
 			remaining -= 1
 		case err := <-error_ch:
 			log.Println("ERROR", err)
 		case r := <-report_ch:
-			log.Println("REPORT", r)
 			compressed = append(compressed, r)
 		}
 	}

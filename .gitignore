@@ -9,3 +9,5 @@ bin
 .travis.yml
 *.db*
 *.db-journal
+inventory.html
+inventory.json
