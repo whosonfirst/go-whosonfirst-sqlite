@@ -10,9 +10,10 @@ self:   prep rmdeps
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/database
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/tables
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-sqlite/utils
-	cp -r database/* src/github.com/whosonfirst/go-whosonfirst-sqlite/database/
-	cp -r tables/* src/github.com/whosonfirst/go-whosonfirst-sqlite/tables/
-	cp -r utils/* src/github.com/whosonfirst/go-whosonfirst-sqlite/utils/
+	cp -r assets src/github.com/whosonfirst/go-whosonfirst-sqlite/
+	cp -r database src/github.com/whosonfirst/go-whosonfirst-sqlite/
+	cp -r tables src/github.com/whosonfirst/go-whosonfirst-sqlite/
+	cp -r utils src/github.com/whosonfirst/go-whosonfirst-sqlite/
 	cp -r *.go src/github.com/whosonfirst/go-whosonfirst-sqlite/
 	cp -r vendor/* src/
 

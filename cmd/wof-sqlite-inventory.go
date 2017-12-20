@@ -5,7 +5,9 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"github.com/whosonfirst/go-whosonfirst-sqlite/assets/html"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/database"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,13 +17,18 @@ import (
 	"time"
 )
 
+type HTMLVars struct {
+	Reports      []Report
+	LastModified string
+}
+
 type Report struct {
 	Path           string
 	Include        bool
 	Count          int
 	Size           int64
 	SizeCompressed int64
-	Sha256Sum        string
+	Sha256Sum      string
 	LastUpdate     time.Time
 	LastModified   time.Time
 }
@@ -36,7 +43,7 @@ func NewReport(path string) Report {
 		Count:          0,
 		Size:           0,
 		SizeCompressed: 0,
-		Sha256Sum:        "",
+		Sha256Sum:      "",
 		LastModified:   now,
 		LastUpdate:     now,
 	}
@@ -107,8 +114,8 @@ func Compress(r Report, report_ch chan Report, done_ch chan bool, err_ch chan er
 	h, err := HashFile(dest)
 
 	if err != nil {
-			err_ch <- err
-			return
+		err_ch <- err
+		return
 	}
 
 	r.Sha256Sum = h
@@ -117,7 +124,7 @@ func Compress(r Report, report_ch chan Report, done_ch chan bool, err_ch chan er
 	return
 }
 
-func HashFile(path) (string, error){
+func HashFile(path string) (string, error) {
 
 	fh, err := os.Open(path)
 
@@ -133,7 +140,7 @@ func HashFile(path) (string, error){
 
 	defer fh.Close()
 
-	hash := sha256.Sum(body)
+	hash := sha256.Sum256(body)
 	enc := hex.EncodeToString(hash[:])
 
 	return enc, nil
@@ -214,6 +221,18 @@ func main() {
 
 	flag.Parse()
 
+	www_bytes, err := html.Asset("templates/html/inventory.html")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	www_template, err := template.New("www").Parse(string(www_bytes))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	databases := flag.Args()
 	count := len(databases)
 
@@ -258,16 +277,14 @@ func main() {
 
 	for _, r := range reports {
 
-		log.Println("WAITING FOR THROTTLE")
-
-		// throttle_ch
-
 		go func(r Report) {
 			Compress(r, report_ch, done_ch, error_ch)
 		}(r)
 	}
 
 	remaining = len(reports)
+
+	compressed := make([]Report, 0)
 
 	for remaining > 0 {
 
@@ -279,7 +296,22 @@ func main() {
 			log.Println("ERROR", err)
 		case r := <-report_ch:
 			log.Println("REPORT", r)
+			compressed = append(compressed, r)
 		}
+	}
+
+	now := time.Now()
+	lastmod := now.Format(time.RFC3339)
+
+	vars := HTMLVars{
+		Reports:      compressed,
+		LastModified: lastmod,
+	}
+
+	err = www_template.Execute(os.Stdout, vars)
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	log.Println("DONE")
