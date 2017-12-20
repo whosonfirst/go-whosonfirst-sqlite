@@ -6,14 +6,17 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 type Report struct {
-	Name         string
+	Path         string
 	Include      bool
 	Count        int
 	Size         int64
-	LastModified int
+	LastUpdate   time.Time
+	LastModified time.Time
 }
 
 func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch chan error) {
@@ -28,8 +31,6 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 		error_ch <- err
 		return
 	}
-
-	fname := filepath.Base(abs_path)
 
 	db, err := database.NewDB(abs_path)
 
@@ -55,12 +56,15 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 		return
 	}
 
+	now := time.Now()
+
 	r := Report{
-		Name:         fname,
+		Path:         abs_path,
 		Include:      false,
 		Count:        0,
 		Size:         0,
-		LastModified: 0,
+		LastModified: now,
+		LastUpdate:   now,
 	}
 
 	if count == 0 {
@@ -73,7 +77,7 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 
 	row = conn.QueryRow("SELECT MAX(lastmodified) FROM spr")
 
-	var lastmod int
+	var lastmod int64
 	err = row.Scan(&lastmod)
 
 	if err != nil {
@@ -89,6 +93,9 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 	}
 
 	r.Size = info.Size()
+	r.LastModified = info.ModTime()
+	r.LastUpdate = time.Unix(lastmod, 0)
+
 	report_ch <- r
 }
 
@@ -104,11 +111,12 @@ func main() {
 	error_ch := make(chan error)
 
 	for _, path := range databases {
-
 		go Inventory(path, report_ch, done_ch, error_ch)
 	}
 
 	remaining := count
+
+	// reports := make(map[string]Report)
 
 	for remaining > 0 {
 
@@ -120,7 +128,11 @@ func main() {
 		case r := <-report_ch:
 
 			if r.Include {
-				log.Println(r)
+
+				// do stuff here...
+			} else {
+				log.Println("REMOVE", r.Path)
+				os.Remove(r.Path)
 			}
 		}
 	}
