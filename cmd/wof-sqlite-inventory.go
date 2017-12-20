@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/assets/html"
@@ -23,23 +24,26 @@ type HTMLVars struct {
 }
 
 type Report struct {
-	Path           string
-	Include        bool
-	Count          int
-	Size           int64
-	SizeCompressed int64
-	Sha256Sum      string
-	LastUpdate     time.Time
-	LastModified   time.Time
+	path           string
+	include        bool
+	Name           string    `json:"name"`
+	Count          int       `json:"count"`
+	Size           int64     `json:"size"`
+	SizeCompressed int64     `json:"size_compressed"`
+	Sha256Sum      string    `json:"sha256_sum"`
+	LastUpdate     time.Time `json:"last_update"`
+	LastModified   time.Time `json:"lastmodified"`
 }
 
 func NewReport(path string) Report {
 
+	name := filepath.Base(path)
 	now := time.Now()
 
 	r := Report{
-		Path:           path,
-		Include:        false,
+		path:           path,
+		include:        false,
+		Name:           name,
 		Count:          0,
 		Size:           0,
 		SizeCompressed: 0,
@@ -57,7 +61,7 @@ func Compress(r Report, report_ch chan Report, done_ch chan bool, err_ch chan er
 		done_ch <- true
 	}()
 
-	abs_source, err := filepath.Abs(r.Path)
+	abs_source, err := filepath.Abs(r.path)
 
 	if err != nil {
 		err_ch <- err
@@ -190,7 +194,7 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 		return
 	}
 
-	r.Include = true
+	r.include = true
 	r.Count = count
 
 	row = conn.QueryRow("SELECT MAX(lastmodified) FROM spr")
@@ -219,7 +223,50 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 
 func main() {
 
+	var outdir = flag.String("outdir", "", "...")
+
 	flag.Parse()
+
+	if *outdir == "" {
+
+		cwd, err := os.Getwd()
+
+		if err != nil {
+			log.Fatal()
+		}
+
+		*outdir = cwd
+	} else {
+
+		info, err := os.Stat(*outdir)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if !info.IsDir() {
+			log.Fatal("outdir is not a directory")
+		}
+	}
+
+	inventory_html := filepath.Join(*outdir, "inventory.html")
+	inventory_json := filepath.Join(*outdir, "inventory.json")
+
+	fh_html, err := os.Create(inventory_html)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer fh_html.Close()
+
+	fh_json, err := os.Create(inventory_json)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer fh_json.Close()
 
 	www_bytes, err := html.Asset("templates/html/inventory.html")
 
@@ -232,6 +279,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// start working
 
 	databases := flag.Args()
 	count := len(databases)
@@ -257,11 +306,10 @@ func main() {
 			log.Println("ERROR", err)
 		case r := <-report_ch:
 
-			if r.Include {
+			if r.include {
 				reports = append(reports, r)
 			} else {
-				log.Println("REMOVE", r.Path)
-				os.Remove(r.Path)
+				os.Remove(r.path)
 			}
 		}
 	}
@@ -308,11 +356,22 @@ func main() {
 		LastModified: lastmod,
 	}
 
-	err = www_template.Execute(os.Stdout, vars)
+	err = www_template.Execute(fh_html, vars)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	enc, err := json.Marshal(compressed)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fh_json.Write(enc)
+
+	fh_html.Close()
+	fh_json.Close()
 
 	log.Println("DONE")
 }
