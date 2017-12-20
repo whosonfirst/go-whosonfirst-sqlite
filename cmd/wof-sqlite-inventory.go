@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -21,7 +21,7 @@ type Report struct {
 	Count          int
 	Size           int64
 	SizeCompressed int64
-	Sha1Sum        string
+	Sha256Sum        string
 	LastUpdate     time.Time
 	LastModified   time.Time
 }
@@ -36,7 +36,7 @@ func NewReport(path string) Report {
 		Count:          0,
 		Size:           0,
 		SizeCompressed: 0,
-		Sha1Sum:        "",
+		Sha256Sum:        "",
 		LastModified:   now,
 		LastUpdate:     now,
 	}
@@ -103,41 +103,40 @@ func Compress(r Report, report_ch chan Report, done_ch chan bool, err_ch chan er
 	}
 
 	r.SizeCompressed = info.Size()
+
+	h, err := HashFile(dest)
+
+	if err != nil {
+			err_ch <- err
+			return
+	}
+
+	r.Sha256Sum = h
+
 	report_ch <- r
 	return
 }
 
-func Hash(r Report, report_ch chan Report, done_ch chan bool, err_ch chan error) {
-
-	defer func() {
-		done_ch <- true
-	}()
-
-	path := fmt.Sprintf("%s.bz2", r.Path)
+func HashFile(path) (string, error){
 
 	fh, err := os.Open(path)
 
 	if err != nil {
-		err_ch <- err
-		return
+		return "", err
 	}
 
 	body, err := ioutil.ReadAll(fh)
 
 	if err != nil {
-		err_ch <- err
-		return
+		return "", err
 	}
 
 	defer fh.Close()
 
-	hash := sha1.Sum(body)
+	hash := sha256.Sum(body)
 	enc := hex.EncodeToString(hash[:])
 
-	r.Sha1Sum = enc
-
-	report_ch <- r
-	return
+	return enc, nil
 }
 
 func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch chan error) {
