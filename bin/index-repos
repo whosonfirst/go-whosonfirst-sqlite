@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# YMD=`date "+%Y%m%d"`
+
+for REPO in $@
+do
+
+    if [ ! -d ${REPO}/data ]
+    then
+	echo "${REPO} has no data directory"
+	continue
+    fi
+    
+    FNAME=`basename ${REPO}`
+    echo "make db for ${FNAME}"
+
+    if [ -f "/usr/local/data/whosonfirst-sqlite/${FNAME}.db" ]
+    then
+	rm /usr/local/data/whosonfirst-sqlite/${FNAME}.db
+    fi
+
+    ./bin/wof-sqlite-index -timings -live-hard-die-fast -all -dsn /usr/local/data/whosonfirst-sqlite/${FNAME}-latest.db -mode repo ${REPO} 
+
+done
+    
+    

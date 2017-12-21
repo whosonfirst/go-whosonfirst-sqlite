@@ -2,8 +2,8 @@
 pkg
 src
 !vendor/src
-bin
-!bin/.gitignore
+bin/go-bindata
+bin/wof-*
 *.log
 *.json
 .travis.yml
