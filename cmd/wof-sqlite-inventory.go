@@ -29,6 +29,7 @@ type Report struct {
 	path             string
 	include          bool
 	Name             string    `json:"name"`
+	NameCompressed   string    `json:"name_compressed"`
 	Count            int       `json:"count"`
 	Size             int64     `json:"size"`
 	SizeCompressed   int64     `json:"size_compressed"`
@@ -40,12 +41,15 @@ type Report struct {
 func NewReport(path string) Report {
 
 	name := filepath.Base(path)
+	name_compressed := fmt.Sprintf("%s.bz2", name)
+
 	now := time.Now()
 
 	r := Report{
 		path:             path,
 		include:          false,
 		Name:             name,
+		NameCompressed:   name_compressed,
 		Count:            0,
 		Size:             0,
 		SizeCompressed:   0,
