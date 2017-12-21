@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -25,15 +26,15 @@ type HTMLVars struct {
 }
 
 type Report struct {
-	path           string
-	include        bool
-	Name           string    `json:"name"`
-	Count          int       `json:"count"`
-	Size           int64     `json:"size"`
-	SizeCompressed int64     `json:"size_compressed"`
-	Sha256Compressed      string    `json:"sha256_compressed"`
-	LastUpdate     time.Time `json:"last_update"`
-	LastModified   time.Time `json:"lastmodified"`
+	path             string
+	include          bool
+	Name             string    `json:"name"`
+	Count            int       `json:"count"`
+	Size             int64     `json:"size"`
+	SizeCompressed   int64     `json:"size_compressed"`
+	Sha256Compressed string    `json:"sha256_compressed"`
+	LastUpdate       time.Time `json:"last_update"`
+	LastModified     time.Time `json:"lastmodified"`
 }
 
 func NewReport(path string) Report {
@@ -42,26 +43,30 @@ func NewReport(path string) Report {
 	now := time.Now()
 
 	r := Report{
-		path:           path,
-		include:        false,
-		Name:           name,
-		Count:          0,
-		Size:           0,
-		SizeCompressed: 0,
-		Sha256Compressed:      "",
-		LastModified:   now,
-		LastUpdate:     now,
+		path:             path,
+		include:          false,
+		Name:             name,
+		Count:            0,
+		Size:             0,
+		SizeCompressed:   0,
+		Sha256Compressed: "",
+		LastModified:     now,
+		LastUpdate:       now,
 	}
 
 	return r
 }
 
+func (r Report) CountString() string {
+	return humanize.Comma(int64(r.Count))
+}
+
 func (r Report) SizeString() string {
-     return humanize.Bytes(uint64(r.Size))
+	return humanize.Bytes(uint64(r.Size))
 }
 
 func (r Report) SizeCompressedString() string {
-     return humanize.Bytes(uint64(r.SizeCompressed))
+	return humanize.Bytes(uint64(r.SizeCompressed))
 }
 
 func (r Report) LastModifiedString() string {
@@ -194,7 +199,7 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 		return
 	}
 
-	row := conn.QueryRow("SELECT COUNT(id) FROM spr")
+	row := conn.QueryRow("SELECT COUNT(id) FROM geojson")
 
 	var count int
 	err = row.Scan(&count)
@@ -214,7 +219,7 @@ func Inventory(path string, report_ch chan Report, done_ch chan bool, error_ch c
 	r.include = true
 	r.Count = count
 
-	row = conn.QueryRow("SELECT MAX(lastmodified) FROM spr")
+	row = conn.QueryRow("SELECT MAX(lastmodified) FROM geojson")
 
 	var lastmod int64
 	err = row.Scan(&lastmod)
@@ -243,6 +248,9 @@ func main() {
 	var outdir = flag.String("outdir", "", "...")
 
 	flag.Parse()
+
+	// general setup - or things that we want to fail immediately
+	// if they're going to fail at all
 
 	if *outdir == "" {
 
@@ -306,6 +314,8 @@ func main() {
 	done_ch := make(chan bool)
 	error_ch := make(chan error)
 
+	// validate all the things
+
 	for _, path := range databases {
 		go Inventory(path, report_ch, done_ch, error_ch)
 	}
@@ -330,6 +340,8 @@ func main() {
 			}
 		}
 	}
+
+	// compress and hash all the things
 
 	// please for to make throttling work
 	// (20171220/thisisaaronland)
@@ -357,11 +369,33 @@ func main() {
 		}
 	}
 
+	// sort things by filename
+
+	by_name := make(map[string]Report)
+	names := make([]string, 0)
+
+	for _, r := range compressed {
+		n := r.Name
+		n = strings.Replace(n, "-latest.db", "", -1)
+		names = append(names, n)
+		by_name[n] = r
+	}
+
+	sort.Strings(names)
+
+	sorted := make([]Report, 0)
+
+	for _, n := range names {
+		sorted = append(sorted, by_name[n])
+	}
+
+	// finally write things to disk
+
 	now := time.Now()
 	lastmod := now.Format(time.RFC3339)
 
 	vars := HTMLVars{
-		Reports:      compressed,
+		Reports:      sorted,
 		LastModified: lastmod,
 	}
 
@@ -371,7 +405,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	enc, err := json.Marshal(compressed)
+	enc, err := json.Marshal(sorted)
 
 	if err != nil {
 		log.Fatal(err)
