@@ -42,7 +42,8 @@
     <ul>
     {{ range $i, $r := .Reports }}
 
-    <li>
+    <a name="{{ $r.Name }}"></a>
+    <li id="{{ $r.Name }}">
       <strong><a href="{{ $r.Name }}.bz2">{{ $r.Name }}</a></strong> <small class="sha256">{{ $r.Sha256Compressed }}</small><br />
       <div class="details">
 	{{ if eq $r.Count 1 }}This database contains <code class="count">one</code> Who's On First record{{ else }}This database contains <code class="count">{{ $r.CountString }}</code> Who's On First records{{ end }} and is <code class="size">{{ $r.SizeCompressedString }}</code> compressed and <code class="size">{{ $r.SizeString }}</code> uncompressed.<br />
