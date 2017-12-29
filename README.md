@@ -230,23 +230,24 @@ You can also use `wof-sqlite-index` in combination with the [go-whosonfirst-api]
 /usr/local/bin/wof-sqlite-index -dsn neighbourhoods.db -all -mode geojson-ls STDIN
 ```
 
-Or creating dated databases for all the placetypes in the `whosonfirst-data` repo. _It would be nice if this worked for other repos (like venues, postalcodes, etc) but it probably doesn't._
+Or creating databases for all the Who's On First repos:
 
 ```
 #!/bin/sh
 
-REPO=$1
-
-YMD=`date "+%Y%m%d"`
-
-for META in `ls -a ${REPO}/meta/*.csv | grep -v concordances`
+for REPO in $@
 do
-    FNAME=`basename ${META}`
-    PLACETYPE=`echo ${FNAME} | awk -F '-' '{ print $2 }'`
 
-    echo "make db for ${FNAME}"
-    echo `date`
-    ./bin/wof-sqlite-index -all -dsn ${PLACETYPE}-${YMD}.db -mode meta ${META}
+    if [ ! -d ${REPO}/data ]
+    then
+        echo "${REPO} is missing a data directory, so skipping"
+        continue
+    fi
+
+    FNAME=`basename ${REPO}`
+    echo "INDEX ${FNAME}"
+
+    ./bin/wof-sqlite-index -live-hard-die-fast -dsn /usr/local/data/whosonfirst-sqlite/${FNAME}.db -all -mode repo ${REPO}
 
 done
 ```    

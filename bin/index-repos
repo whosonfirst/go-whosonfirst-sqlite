@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# YMD=`date "+%Y%m%d"`
 
 for REPO in $@
 do
