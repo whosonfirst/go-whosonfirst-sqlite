@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/shaxbee/go-spatialite"
 	_ "log"
 	"sync"
 )
@@ -16,6 +17,25 @@ type SQLiteDatabase struct {
 func NewDB(dsn string) (*SQLiteDatabase, error) {
 
 	conn, err := sql.Open("sqlite3", dsn)
+
+	if err != nil {
+		return nil, err
+	}
+
+	mu := new(sync.Mutex)
+
+	db := SQLiteDatabase{
+		conn: conn,
+		dsn:  dsn,
+		mu:   mu,
+	}
+
+	return &db, err
+}
+
+func NewSpatialiteDB(dsn string) (*SQLiteDatabase, error) {
+
+	conn, err := sql.Open("spatialite", dsn)
 
 	if err != nil {
 		return nil, err
