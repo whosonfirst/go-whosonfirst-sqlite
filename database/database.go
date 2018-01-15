@@ -15,27 +15,12 @@ type SQLiteDatabase struct {
 }
 
 func NewDB(dsn string) (*SQLiteDatabase, error) {
-
-	conn, err := sql.Open("sqlite3", dsn)
-
-	if err != nil {
-		return nil, err
-	}
-
-	mu := new(sync.Mutex)
-
-	db := SQLiteDatabase{
-		conn: conn,
-		dsn:  dsn,
-		mu:   mu,
-	}
-
-	return &db, err
+	return NewDBWithDriver("sqlite3", dsn)
 }
 
-func NewSpatialiteDB(dsn string) (*SQLiteDatabase, error) {
+func NewDBWithDriver(driver string, dsn string) (*SQLiteDatabase, error) {
 
-	conn, err := sql.Open("spatialite", dsn)
+	conn, err := sql.Open(driver, dsn)
 
 	if err != nil {
 		return nil, err
