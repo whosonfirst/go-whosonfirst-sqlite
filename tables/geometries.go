@@ -68,7 +68,6 @@ func (t *GeometriesTable) Schema() string {
 
 	sql := `CREATE TABLE %s (
 		id INTEGER NOT NULL PRIMARY KEY,
-		placetype TEXT,
 		is_alt TINYINT,
 		type TEXT,
 		lastmodified INTEGER
@@ -97,7 +96,6 @@ func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) er
 	}
 
 	str_id := f.Id()
-	pt := f.Placetype()
 
 	lastmod := whosonfirst.LastModified(f)
 
@@ -132,9 +130,9 @@ func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) er
 	str_wkt, err := wkt.Marshal(g)
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, placetype, is_alt, type, geom, lastmodified
+		id, is_alt, type, geom, lastmodified
 	) VALUES (
-		?, ?, ?, ?, GeomFromText('%s', 4326), ?
+		?, ?, ?, GeomFromText('%s', 4326), ?
 	)`, t.Name(), str_wkt)
 
 	stmt, err := tx.Prepare(sql)
@@ -152,7 +150,7 @@ func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) er
 	is_alt := 0
 	geom_type := "common"
 
-	_, err = stmt.Exec(str_id, pt, is_alt, geom_type, lastmod)
+	_, err = stmt.Exec(str_id, is_alt, geom_type, lastmod)
 
 	if err != nil {
 		return err

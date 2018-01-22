@@ -91,7 +91,6 @@ CREATE INDEX geojson_by_lastmod ON geojson (lastmodified);
 ```
 CREATE TABLE geometries (
 	id INTEGER NOT NULL PRIMARY KEY,
-	placetype TEXT,
 	is_alt TINYINT,
 	type TEXT,
 	lastmodified INTEGER
@@ -104,7 +103,7 @@ SELECT CreateSpatialIndex('geometries', 'geom');
 CREATE INDEX geometries_by_lastmod ON %s (lastmodified);`
 ```
 
-_Notes: This table schema is still a work in progress. In order to index geometries you will need to have the [Spatialite extension](https://www.gaia-gis.it/fossil/libspatialite/index) installed._
+_Notes: In order to index geometries you will need to have the [Spatialite extension](https://www.gaia-gis.it/fossil/libspatialite/index) installed._
 
 ### names
 
