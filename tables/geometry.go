@@ -7,6 +7,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
+	_ "log"
 )
 
 type GeometryTable struct {
@@ -40,7 +41,7 @@ func NewGeometryTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
 func NewGeometryTable() (sqlite.Table, error) {
 
 	t := GeometryTable{
-		name: "geometry",
+		name: "geometry_whosonfirst",
 	}
 
 	return &t, nil
@@ -56,12 +57,19 @@ func (t *GeometryTable) Schema() string {
 	// let's just get this working first and then make it fancy
 	// (20180109/thisisaaronland)
 
+	// https://www.gaia-gis.it/spatialite-1.0a/SpatiaLite-tutorial.html
+	// http://www.gaia-gis.it/gaia-sins/spatialite-sql-4.3.0.html
+
+	// Note the InitSpatialMetaData() command because this:
+	// https://stackoverflow.com/questions/17761089/cannot-create-column-with-spatialite-unexpected-metadata-layout
+
 	sql := `CREATE TABLE %s (
 		id INTEGER NOT NULL PRIMARY KEY,
 		placetype TEXT,
 		lastmodified INTEGER
 	);
 
+	SELECT InitSpatialMetaData();
 	SELECT AddGeometryColumn('%s', 'geom', 2154, 'GEOMETRY', 'XY');
 	SELECT CreateSpatialIndex('%s', 'geom');
 
@@ -94,6 +102,9 @@ func (t *GeometryTable) IndexFeature(db sqlite.Database, f geojson.Feature) erro
 		return err
 	}
 
+	// apparently this really needs to be WKT or spatialite
+	// will complain about stuff
+
 	str_geom, err := geometry.ToString(f)
 
 	if err != nil {
@@ -101,9 +112,9 @@ func (t *GeometryTable) IndexFeature(db sqlite.Database, f geojson.Feature) erro
 	}
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, placeype, geom, lastmodified
+		id, placetype, geom, lastmodified
 	) VALUES (
-		?, ?, GeomFromGeoJSON('%s', 2154), ?
+		?, ?, GeomFromGeoJSON('%s'), ?
 	)`, t.Name(), str_geom)
 
 	stmt, err := tx.Prepare(sql)
