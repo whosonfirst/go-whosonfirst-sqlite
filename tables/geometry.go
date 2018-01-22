@@ -70,7 +70,7 @@ func (t *GeometryTable) Schema() string {
 	);
 
 	SELECT InitSpatialMetaData();
-	SELECT AddGeometryColumn('%s', 'geom', 2154, 'GEOMETRY', 'XY');
+	SELECT AddGeometryColumn('%s', 'geom', 4326, 'GEOMETRY', 'XY');
 	SELECT CreateSpatialIndex('%s', 'geom');
 
 	CREATE INDEX geojson_by_lastmod ON %s (lastmodified);`
