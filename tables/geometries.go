@@ -2,6 +2,9 @@ package tables
 
 import (
 	"fmt"
+	"github.com/twpayne/go-geom"
+	gogeom_geojson "github.com/twpayne/go-geom/encoding/geojson"
+	"github.com/twpayne/go-geom/encoding/wkt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
@@ -10,20 +13,20 @@ import (
 	_ "log"
 )
 
-type GeometryTable struct {
+type GeometriesTable struct {
 	sqlite.Table
 	name string
 }
 
-type GeometryRow struct {
+type GeometriesRow struct {
 	Id           int64
 	Body         string
 	LastModified int64
 }
 
-func NewGeometryTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+func NewGeometriesTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
 
-	t, err := NewGeometryTable()
+	t, err := NewGeometriesTable()
 
 	if err != nil {
 		return nil, err
@@ -38,20 +41,20 @@ func NewGeometryTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
 	return t, nil
 }
 
-func NewGeometryTable() (sqlite.Table, error) {
+func NewGeometriesTable() (sqlite.Table, error) {
 
-	t := GeometryTable{
-		name: "geometry_whosonfirst",
+	t := GeometriesTable{
+		name: "geometries",
 	}
 
 	return &t, nil
 }
 
-func (t *GeometryTable) Name() string {
+func (t *GeometriesTable) Name() string {
 	return t.name
 }
 
-func (t *GeometryTable) Schema() string {
+func (t *GeometriesTable) Schema() string {
 
 	// really this should probably be the SPR table + geom but
 	// let's just get this working first and then make it fancy
@@ -66,6 +69,8 @@ func (t *GeometryTable) Schema() string {
 	sql := `CREATE TABLE %s (
 		id INTEGER NOT NULL PRIMARY KEY,
 		placetype TEXT,
+		is_alt TINYINT,
+		type TEXT,
 		lastmodified INTEGER
 	);
 
@@ -73,17 +78,17 @@ func (t *GeometryTable) Schema() string {
 	SELECT AddGeometryColumn('%s', 'geom', 4326, 'GEOMETRY', 'XY');
 	SELECT CreateSpatialIndex('%s', 'geom');
 
-	CREATE INDEX geojson_by_lastmod ON %s (lastmodified);`
+	CREATE INDEX geometries_by_lastmod ON %s (lastmodified);`
 
 	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name())
 }
 
-func (t *GeometryTable) InitializeTable(db sqlite.Database) error {
+func (t *GeometriesTable) InitializeTable(db sqlite.Database) error {
 
 	return utils.CreateTableIfNecessary(db, t)
 }
 
-func (t *GeometryTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
+func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 	conn, err := db.Conn()
 
@@ -102,20 +107,35 @@ func (t *GeometryTable) IndexFeature(db sqlite.Database, f geojson.Feature) erro
 		return err
 	}
 
-	// apparently this really needs to be WKT or spatialite
-	// will complain about stuff
-
 	str_geom, err := geometry.ToString(f)
 
 	if err != nil {
 		return err
 	}
 
+	// but wait! there's more!! for reasons I've forgotten (simonw told me)
+	// the spatialite doesn't really like indexing GeomFromGeoJSON but also
+	// doesn't complain about it - it just chugs along happily filling your
+	// database with null geometries so we're going to take advantage of the
+	// handy "go-geom" package to convert the GeoJSON geometry in to WKT -
+	// it is "one more thing" to import and maybe it would be better to just
+	// write a custom converter but not today...
+	// (20180122/thisisaaronland)
+
+	var g geom.T
+	err = gogeom_geojson.Unmarshal([]byte(str_geom), &g)
+
+	if err != nil {
+		return err
+	}
+
+	str_wkt, err := wkt.Marshal(g)
+
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, placetype, geom, lastmodified
+		id, placetype, is_alt, type, geom, lastmodified
 	) VALUES (
-		?, ?, GeomFromGeoJSON('%s'), ?
-	)`, t.Name(), str_geom)
+		?, ?, ?, ?, GeomFromText('%s', 4326), ?
+	)`, t.Name(), str_wkt)
 
 	stmt, err := tx.Prepare(sql)
 
@@ -125,7 +145,14 @@ func (t *GeometryTable) IndexFeature(db sqlite.Database, f geojson.Feature) erro
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(str_id, pt, lastmod)
+	// see this - eventually we will have to test the feature and assign these
+	// values accordingly - currently we do not since the all go-whosonfirst-index
+	// related code is wired to skip alt files (20180122/thisisaaronland)
+
+	is_alt := 0
+	geom_type := "common"
+
+	_, err = stmt.Exec(str_id, pt, is_alt, geom_type, lastmod)
 
 	if err != nil {
 		return err

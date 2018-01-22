@@ -86,6 +86,24 @@ CREATE TABLE geojson (
 CREATE INDEX geojson_by_lastmod ON geojson (lastmodified);
 ```
 
+### geometries
+
+```
+CREATE TABLE geometries (
+	id INTEGER NOT NULL PRIMARY KEY,
+	placetype TEXT,
+	is_alt TINYINT,
+	type TEXT,
+	lastmodified INTEGER
+);
+
+SELECT InitSpatialMetaData();
+SELECT AddGeometryColumn('geometries', 'geom', 4326, 'GEOMETRY', 'XY');
+SELECT CreateSpatialIndex('geometries', 'geom');
+
+CREATE INDEX geometries_by_lastmod ON %s (lastmodified);`
+```
+
 ### names
 
 ```

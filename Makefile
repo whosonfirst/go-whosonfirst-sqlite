@@ -28,6 +28,7 @@ deps:
 	@GOPATH=$(GOPATH) go get -u "github.com/shaxbee/go-spatialite"
 	@GOPATH=$(GOPATH) go get -u "github.com/jteeuwen/go-bindata/"
 	@GOPATH=$(GOPATH) go get -u "github.com/dustin/go-humanize"
+	@GOPATH=$(GOPATH) go get -u "github.com/twpayne/go-geom"
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-index"
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-log"

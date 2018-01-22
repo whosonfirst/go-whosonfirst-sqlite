@@ -34,7 +34,7 @@ func main() {
 	ancestors := flag.Bool("ancestors", false, "Index the 'ancestors' tables")
 	concordances := flag.Bool("concordances", false, "Index the 'concordances' tables")
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
-	geometry := flag.Bool("geometry", false, "Index the 'geometry' table")
+	geometries := flag.Bool("geometries", false, "Index the 'geometries' table")
 	names := flag.Bool("names", false, "Index the 'names' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
 	live_hard := flag.Bool("live-hard-die-fast", false, "Enable various performance-related pragmas at the expense of possible (unlikely) database corruption")
@@ -50,7 +50,7 @@ func main() {
 	stdout := io.Writer(os.Stdout)
 	logger.AddLogger(stdout, "status")
 
-	if *geometry && *driver != "spatialite" {
+	if *geometries && *driver != "spatialite" {
 		logger.Fatal("you asked to index geometries but specified the '%s' driver instead of spatialite", *driver)
 	}
 
@@ -128,12 +128,12 @@ func main() {
 		to_index = append(to_index, cn)
 	}
 
-	if *geometry || *all {
+	if *geometries || *all {
 
-		gm, err := tables.NewGeometryTableWithDatabase(db)
+		gm, err := tables.NewGeometriesTableWithDatabase(db)
 
 		if err != nil {
-			logger.Fatal("failed to create 'geometry' table because %s", err)
+			logger.Fatal("failed to create 'geometries' table because %s", err)
 		}
 
 		to_index = append(to_index, gm)
