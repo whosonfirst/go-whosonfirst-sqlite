@@ -30,11 +30,11 @@ func main() {
 
 	mode := flag.String("mode", "files", desc_modes)
 
-	all := flag.Bool("all", false, "Index all tables")
+	all := flag.Bool("all", false, "Index all tables (except geometries which you'll need to specify explicitly)")
 	ancestors := flag.Bool("ancestors", false, "Index the 'ancestors' tables")
 	concordances := flag.Bool("concordances", false, "Index the 'concordances' tables")
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")
-	geometries := flag.Bool("geometries", false, "Index the 'geometries' table")
+	geometries := flag.Bool("geometries", false, "Index the 'geometries' table (requires that libspatialite already be installed)")
 	names := flag.Bool("names", false, "Index the 'names' table")
 	spr := flag.Bool("spr", false, "Index the 'spr' table")
 	live_hard := flag.Bool("live-hard-die-fast", false, "Enable various performance-related pragmas at the expense of possible (unlikely) database corruption")
@@ -128,7 +128,10 @@ func main() {
 		to_index = append(to_index, cn)
 	}
 
-	if *geometries || *all {
+	// see the way we don't check *all here - that's so people who don't have
+	// spatialite installed can still use *all (20180122/thisisaaronland)
+
+	if *geometries {
 
 		gm, err := tables.NewGeometriesTableWithDatabase(db)
 
