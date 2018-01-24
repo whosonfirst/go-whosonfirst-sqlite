@@ -305,4 +305,5 @@ _Note that as of this writing you need to explicitly pass in the `-driver spatia
 
 * https://sqlite.org/
 * https://www.gaia-gis.it/fossil/libspatialite/index
+* https://www.gaia-gis.it/gaia-sins/spatialite-cookbook/index.html
 * https://dist.whosonfirst.org/sqlite/
