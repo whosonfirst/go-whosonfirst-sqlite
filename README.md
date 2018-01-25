@@ -306,6 +306,13 @@ sqlite> SELECT s.id, s.name FROM spr s, geometries g WHERE ST_Intersects(g.geom,
 Or:
 
 ```
+> spatialite whosonfirst-data-latest.db
+SpatiaLite version ..: 4.1.1	Supported Extensions:
+...spatialite chatter goes here...
+SQLite version 3.8.2 2013-12-06 14:53:30
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";
+
 spatialite> SELECT s.id, s.name FROM spr AS s, geometries AS g1, geometries AS g2 WHERE g1.id =  85834637 AND s.placetype = 'neighbourhood' AND g2.id = s.id AND ST_Touches(g1.geom, g2.geom) AND g2.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'geometries' AND search_frame=g2.geom);
 102112179|La Lengua
 1108831803|Showplace Square
@@ -365,5 +372,4 @@ As of this writing individual tables are indexed atomically. There may be some i
 
 * https://sqlite.org/
 * https://www.gaia-gis.it/fossil/libspatialite/index
-* https://www.gaia-gis.it/gaia-sins/spatialite-cookbook/index.html
 * https://dist.whosonfirst.org/sqlite/
