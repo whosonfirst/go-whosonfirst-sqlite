@@ -27,6 +27,7 @@ deps:
 	@GOPATH=$(GOPATH) go install "github.com/mattn/go-sqlite3"
 	# just use local copy until master is tweaked to work under ubuntu
 	# https://github.com/mattn/go-sqlite3/issues/516#issuecomment-360206782
+	# https://github.com/shaxbee/go-spatialite/pull/2
 	# @GOPATH=$(GOPATH) go get -u "github.com/shaxbee/go-spatialite"
 	@GOPATH=$(GOPATH) go get -u "github.com/jteeuwen/go-bindata/"
 	@GOPATH=$(GOPATH) go get -u "github.com/dustin/go-humanize"
