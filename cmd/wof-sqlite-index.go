@@ -30,7 +30,7 @@ func main() {
 
 	mode := flag.String("mode", "files", desc_modes)
 
-	all := flag.Bool("all", false, "Index all tables (except geometries which you'll need to specify explicitly)")
+	all := flag.Bool("all", false, "Index all tables (except geometries which you need to specify explicitly)")
 	ancestors := flag.Bool("ancestors", false, "Index the 'ancestors' tables")
 	concordances := flag.Bool("concordances", false, "Index the 'concordances' tables")
 	geojson := flag.Bool("geojson", false, "Index the 'geojson' table")

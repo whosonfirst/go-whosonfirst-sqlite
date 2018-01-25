@@ -210,7 +210,7 @@ Where `geojson.Feature` is defined in the [go-whosonfirst-geojson-v2](https://gi
 ./bin/wof-sqlite-index -h
 Usage of ./bin/wof-sqlite-index:
   -all
-    	Index all tables
+    	Index all tables (except geometries which you need to specify explicitly)
   -ancestors
     	Index the 'ancestors' tables
   -concordances
@@ -222,7 +222,7 @@ Usage of ./bin/wof-sqlite-index:
   -geojson
     	Index the 'geojson' table
   -geometries
-    	Index the 'geometries' table (requires that libspatialite be installed)
+    	Index the 'geometries' table (requires that libspatialite already be installed)
   -live-hard-die-fast
     	Enable various performance-related pragmas at the expense of possible (unlikely) database corruption
   -mode string
@@ -302,6 +302,24 @@ sqlite> SELECT s.id, s.name FROM spr s, geometries g WHERE ST_Intersects(g.geom,
 ```
 
 _Note that as of this writing you need to explicitly pass in the `-driver spatialite` argument when indexing geometries. This may change. Or not..._
+
+Building indexes with the `geometries` table also takes quite a bit longer than doing so without. For example indexing the [whosonfirst-data](https://github.com/whosonfirst-data/whosonfirst-data) repository with spatial indexes:
+
+```
+06:12:51.274132 [wof-sqlite-index] STATUS time to index geojson (951541) : 13m41.994217581s
+06:12:51.274158 [wof-sqlite-index] STATUS time to index spr (951541) : 13m0.21007633s
+06:12:51.274173 [wof-sqlite-index] STATUS time to index names (951541) : 17m50.759093941s
+06:12:51.274178 [wof-sqlite-index] STATUS time to index ancestors (951541) : 3m37.431723948s
+06:12:51.274182 [wof-sqlite-index] STATUS time to index concordances (951541) : 2m36.737857568s
+06:12:51.274187 [wof-sqlite-index] STATUS time to index geometries (951541) : 43m48.39054903s
+06:12:51.274192 [wof-sqlite-index] STATUS time to index all (951541) : 4h41m45.492361401s
+```
+
+And without:
+
+```
+[ please add timings ]
+```
 
 ## See also
 
