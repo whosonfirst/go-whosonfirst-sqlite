@@ -309,6 +309,17 @@ Or:
 spatialite> SELECT s.id, s.name FROM spr AS s, geometries AS g1, geometries AS g2 WHERE g1.id =  85834637 AND s.placetype = 'neighbourhood' AND g2.id = s.id AND ST_Touches(g1.geom, g2.geom) AND g2.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'geometries' AND search_frame=g2.geom);
 102112179|La Lengua
 1108831803|Showplace Square
+
+spatialite> SELECT s.id, s.name FROM spr AS s, geometries AS g1, geometries AS g2 WHERE g1.id != g2.id AND g1.id =  85865959 AND s.placetype = 'neighbourhood' AND s.is_current=1 AND g2.id = s.id AND (ST_Touches(g1.geom, g2.geom) OR ST_Intersects(g1.geom, g2.geom)) AND g2.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'geometries' AND search_frame=g2.geom);
+1108831807|Fairmount
+85814471|Diamond Heights
+85869221|Eureka Valley
+
+SELECT s.id, s.name, s.is_current FROM spr AS s, geometries AS g1, geometries AS g2 WHERE g1.id != g2.id AND g1.id =  102061079 AND s.placetype = 'neighbourhood' AND g2.id = s.id AND (ST_Touches(g1.geom, g2.geom) OR ST_Intersects(g1.geom, g2.geom)) AND g2.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'geometries' AND search_frame=g2.geom);
+85892915|BoCoCa|0
+85869125|Boerum Hill|1
+420782915|Carroll Gardens|1
+85865587|Gowanus|1
 ```
 
 _Remember: When indexing geometries you will need to explcitly pass both the `-geometries` and `-driver spatialite` flags, even if you are already passing in the `-all` flag. This is so `-all` will continue to work as expected for people who don't have Spatialite installed on their computer._
