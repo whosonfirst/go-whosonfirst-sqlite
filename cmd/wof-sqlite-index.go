@@ -182,7 +182,7 @@ func main() {
 
 			t1 := time.Now()
 
-			err = t.IndexFeature(db, f)
+			err = t.IndexRecord(db, f)
 
 			if err != nil {
 				logger.Warning("failed to index feature (%s) in '%s' table because %s", path, t.Name(), err)

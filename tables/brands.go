@@ -1,9 +1,8 @@
 package tables
 
 import (
-       "errors"
+	"errors"
 	"fmt"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
 )
@@ -76,7 +75,7 @@ func (t *BrandsTable) InitializeTable(db sqlite.Database) error {
 	return utils.CreateTableIfNecessary(db, t)
 }
 
-func (t *BrandsTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
+func (t *BrandsTable) IndexRecord(db sqlite.Database, b interface{}) error {
 
-     return errors.New("Please write me")
+	return errors.New("Please write me")
 }
