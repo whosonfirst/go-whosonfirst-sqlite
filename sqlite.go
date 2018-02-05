@@ -10,6 +10,8 @@ type Database interface {
      Conn() (*sql.DB, error)
      DSN() string
      Close() error
+     Lock() error
+     Unlock() error
 }
 
 type Table interface {

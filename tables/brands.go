@@ -77,9 +77,9 @@ func (t *BrandsTable) InitializeTable(db sqlite.Database) error {
 }
 
 func (t *BrandsTable) IndexRecord(db sqlite.Database, i interface{}) error {
-     return t.IndexBrand(db, i.(brands.Brand))
+	return t.IndexBrand(db, i.(brands.Brand))
 }
 
 func (t *BrandsTable) IndexBrand(db sqlite.Database, b brands.Brand) error {
-     return errors.New("Please write me")
+	return errors.New("Please write me")
 }
