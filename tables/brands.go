@@ -1,11 +1,11 @@
 package tables
 
 import (
-	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-brands"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
+	_ "log"
 )
 
 type BrandsTable struct {
@@ -81,5 +81,50 @@ func (t *BrandsTable) IndexRecord(db sqlite.Database, i interface{}) error {
 }
 
 func (t *BrandsTable) IndexBrand(db sqlite.Database, b brands.Brand) error {
-	return errors.New("Please write me")
+
+	conn, err := db.Conn()
+
+	if err != nil {
+		return err
+	}
+
+	tx, err := conn.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	is_current, err := b.IsCurrent()
+
+	if err != nil {
+		return err
+	}
+
+	id := b.Id()
+	name := b.Name()
+	sz := b.Size()
+
+	lastmod := 0 // PLEASE FIX ME
+
+	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
+		id, name, size, is_current, lastmodified
+	) VALUES (
+		?, ?, ?, ?, ?
+	)`, t.Name())
+
+	stmt, err := tx.Prepare(sql)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id, name, sz, is_current.Flag(), lastmod)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
