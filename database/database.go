@@ -69,12 +69,14 @@ func (db *SQLiteDatabase) LiveHardDieFast() error {
 	return nil
 }
 
-func (db *SQLiteDatabase) Lock() {
+func (db *SQLiteDatabase) Lock() error {
 	db.mu.Lock()
+	return nil
 }
 
-func (db *SQLiteDatabase) Unlock() {
+func (db *SQLiteDatabase) Unlock() error {
 	db.mu.Unlock()
+	return nil
 }
 
 func (db *SQLiteDatabase) Conn() (*sql.DB, error) {

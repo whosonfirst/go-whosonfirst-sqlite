@@ -14,7 +14,7 @@ import (
 )
 
 type GeometriesTable struct {
-	sqlite.Table
+	sqlite.FeatureTable
 	name string
 }
 
@@ -85,6 +85,10 @@ func (t *GeometriesTable) Schema() string {
 func (t *GeometriesTable) InitializeTable(db sqlite.Database) error {
 
 	return utils.CreateTableIfNecessary(db, t)
+}
+
+func (t *GeometriesTable) IndexRecord(db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(db, i.(geojson.Feature))
 }
 
 func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {

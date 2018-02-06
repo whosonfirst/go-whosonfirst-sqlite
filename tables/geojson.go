@@ -9,7 +9,7 @@ import (
 )
 
 type GeoJSONTable struct {
-	sqlite.Table
+	sqlite.FeatureTable
 	name string
 }
 
@@ -65,6 +65,10 @@ func (t *GeoJSONTable) Schema() string {
 func (t *GeoJSONTable) InitializeTable(db sqlite.Database) error {
 
 	return utils.CreateTableIfNecessary(db, t)
+}
+
+func (t *GeoJSONTable) IndexRecord(db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(db, i.(geojson.Feature))
 }
 
 func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {

@@ -9,7 +9,7 @@ import (
 )
 
 type ConcordancesTable struct {
-	sqlite.Table
+	sqlite.FeatureTable
 	name string
 }
 
@@ -70,6 +70,10 @@ func (t *ConcordancesTable) Schema() string {
 func (t *ConcordancesTable) InitializeTable(db sqlite.Database) error {
 
 	return utils.CreateTableIfNecessary(db, t)
+}
+
+func (t *ConcordancesTable) IndexRecord(db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(db, i.(geojson.Feature))
 }
 
 func (t *ConcordancesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {

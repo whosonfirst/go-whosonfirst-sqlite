@@ -58,6 +58,25 @@ CREATE INDEX ancestors_by_ancestor ON ancestors (ancestor_id,ancestor_placetype,
 CREATE INDEX ancestors_by_lastmod ON ancestors (lastmodified);
 ```
 
+### brands
+
+_This will probably be moved in to an as-yet unwritten `go-whosonfirst-sqlite-brands` package._
+
+```
+CREATE TABLE brands (
+       id INTEGER NOT NULL,
+       name TEXT,
+       size TEXT,
+       is_current INTEGER,
+       lastmodified INTEGER
+);
+
+CREATE INDEX brands_by_name ON brands (name, size, is_current);
+CREATE INDEX brands_by_name_current ON brands (name, is_current);	
+CREATE INDEX brands_by_lastmod ON brands (lastmodified);
+CREATE INDEX brands_by_id ON brands (id);
+```
+
 ### concordances
 
 ```
@@ -100,7 +119,7 @@ SELECT InitSpatialMetaData();
 SELECT AddGeometryColumn('geometries', 'geom', 4326, 'GEOMETRY', 'XY');
 SELECT CreateSpatialIndex('geometries', 'geom');
 
-CREATE INDEX geometries_by_lastmod ON %s (lastmodified);`
+CREATE INDEX geometries_by_lastmod ON geometries (lastmodified);`
 ```
 
 _Notes: In order to index geometries you will need to have the [Spatialite extension](https://www.gaia-gis.it/fossil/libspatialite/index) installed._
@@ -206,10 +225,33 @@ _Note: In an effort to generalize this package the interface may be updated to i
 
 ## Tools
 
-### wof-sqlite-index
+### wof-sqlite-index-brands
+
+_This will probably be moved in to an as-yet unwritten `go-whosonfirst-sqlite-brands` package._
 
 ```
-./bin/wof-sqlite-index -h
+./bin/wof-sqlite-index-brands -h
+Usage of ./bin/wof-sqlite-index-brands:
+  -driver string
+    	 (default "sqlite3")
+  -dsn string
+    	 (default ":memory:")
+  -live-hard-die-fast
+    	Enable various performance-related pragmas at the expense of possible (unlikely) database corruption
+  -mode string
+    	The mode to use importing data. Valid modes are: directory,feature,feature-collection,files,geojson-ls,meta,path,repo,sqlite. (default "files")
+  -processes int
+    	The number of concurrent processes to index data with (default 8)
+  -timings
+    	Display timings during and after indexing
+```
+
+### wof-sqlite-index-features
+
+_This used to be called `wof-sqlite-index`._
+
+```
+./bin/wof-sqlite-index-features -h
 Usage of ./bin/wof-sqlite-index:
   -all
     	Index all tables (except geometries which you need to specify explicitly)

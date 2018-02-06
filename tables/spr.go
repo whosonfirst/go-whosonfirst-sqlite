@@ -8,7 +8,7 @@ import (
 )
 
 type SPRTable struct {
-	sqlite.Table
+	sqlite.FeatureTable
 	name string
 }
 
@@ -114,6 +114,10 @@ func (t *SPRTable) Schema() string {
 
 	// so dumb...
 	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
+}
+
+func (t *SPRTable) IndexRecord(db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(db, i.(geojson.Feature))
 }
 
 func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
