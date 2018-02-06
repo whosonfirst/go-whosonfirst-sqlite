@@ -47,7 +47,7 @@ func main() {
 			return err
 		}
 
-		log.Println(br.Id(), br.Name(), is_current)
+		log.Println(br.Id(), br.Name(), is_current, br.LastModified())
 		return nil
 	}
 

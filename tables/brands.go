@@ -103,8 +103,7 @@ func (t *BrandsTable) IndexBrand(db sqlite.Database, b brands.Brand) error {
 	id := b.Id()
 	name := b.Name()
 	sz := b.Size()
-
-	lastmod := 0 // PLEASE FIX ME
+	lastmod := b.LastModified()
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
 		id, name, size, is_current, lastmodified

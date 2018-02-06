@@ -74,6 +74,10 @@ func (b *WOFBrand) Size() string {
 	return properties.StringProperty(b, []string{"wof:brand_size"}, "")
 }
 
+func (b *WOFBrand) LastModified() int64 {
+	return properties.Int64Property(b, []string{"wof:lastmodified"}, -1)
+}
+
 func (b *WOFBrand) IsCurrent() (flags.ExistentialFlag, error) {
 
 	c := properties.Int64Property(b, []string{"mz:is_current"}, -1)
