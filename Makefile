@@ -59,6 +59,6 @@ fmt:
 	go fmt utils/*.go
 
 bin: 	self
-	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index cmd/wof-sqlite-index.go
-	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-brands cmd/wof-sqlite-index-brands.go
+	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index-features cmd/wof-sqlite-index-features.go
+	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index-brands cmd/wof-sqlite-index-brands.go
 	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-inventory cmd/wof-sqlite-inventory.go

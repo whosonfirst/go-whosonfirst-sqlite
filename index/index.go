@@ -43,6 +43,10 @@ func NewSQLiteIndexer(db sqlite.Database, tables []sqlite.Table, callback SQLite
 			return err
 		}
 
+		if record == nil {
+			return nil
+		}
+
 		db.Lock()
 
 		defer db.Unlock()
