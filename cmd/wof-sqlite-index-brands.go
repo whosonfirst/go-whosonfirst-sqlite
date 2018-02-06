@@ -14,8 +14,23 @@ import (
 	"io"
 	"os"
 	"runtime"
-	"strings"		
+	"strings"
 )
+
+// THIS IS A TOTAL HACK UNTIL WE CAN SORT THINGS OUT IN
+// go-whosonfirst-index... (20180206/thisisaaronland)
+
+type Closer struct {
+	fh io.Reader
+}
+
+func (c Closer) Read(b []byte) (int, error) {
+	return c.fh.Read(b)
+}
+
+func (c Closer) Close() error {
+	return nil
+}
 
 func main() {
 
@@ -27,7 +42,6 @@ func main() {
 
 	mode := flag.String("mode", "files", desc_modes)
 
-	all := flag.Bool("all", false, "Index all tables (except geometries which you need to specify explicitly)")
 	live_hard := flag.Bool("live-hard-die-fast", false, "Enable various performance-related pragmas at the expense of possible (unlikely) database corruption")
 	timings := flag.Bool("timings", false, "Display timings during and after indexing")
 	var procs = flag.Int("processes", (runtime.NumCPU() * 2), "The number of concurrent processes to index data with")
@@ -74,16 +88,17 @@ func main() {
 
 	cb := func(ctx context.Context, fh io.Reader, args ...interface{}) (interface{}, error) {
 
-		path, err := wof_index.PathForContext(ctx)
-
 		if err != nil {
 			return nil, err
 		}
 
-		return whosonfirst.LoadWOFBrandFromReader(fh)
+		// HACK - see above
+		closer := Closer{fh}
+
+		return whosonfirst.LoadWOFBrandFromReader(closer)
 	}
 
-	idx, err := index.NewSQLiteIndexer(db, tables, cb)
+	idx, err := index.NewSQLiteIndexer(db, to_index, cb)
 
 	if err != nil {
 		logger.Fatal("failed to create sqlite indexer because %s", err)

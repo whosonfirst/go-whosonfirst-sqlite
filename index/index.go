@@ -21,7 +21,7 @@ type SQLiteIndexer struct {
 	Logger        *log.WOFLogger
 }
 
-func NewSQLiteIndexer(db sqlite.Database, tables []sqlite.Table, load_func SQLiteIndexerFunc) (*SQLiteIndexer, error) {
+func NewSQLiteIndexer(db sqlite.Database, tables []sqlite.Table, callback SQLiteIndexerFunc) (*SQLiteIndexer, error) {
 
 	table_timings := make(map[string]time.Duration)
 	mu := new(sync.RWMutex)
@@ -36,7 +36,7 @@ func NewSQLiteIndexer(db sqlite.Database, tables []sqlite.Table, load_func SQLit
 			return err
 		}
 
-		record, err := load_func(ctx, fh, args...)
+		record, err := callback(ctx, fh, args...)
 
 		if err != nil {
 			logger.Warning("failed to load record (%s) because %s", path, err)

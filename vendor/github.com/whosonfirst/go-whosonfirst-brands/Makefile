@@ -12,7 +12,7 @@ self:   prep
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-brands
 	cp brands.go src/github.com/whosonfirst/go-whosonfirst-brands
 	cp -r whosonfirst src/github.com/whosonfirst/go-whosonfirst-brands/
-	cp -r vendor/src/* src/
+	cp -r vendor/* src/
 
 deps:   
 	@GOPATH=$(GOPATH) go get -u "github.com/tidwall/gjson"
@@ -24,9 +24,8 @@ deps:
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-uri"
 
 vendor-deps: rmdeps deps
-	if test ! -d vendor; then mkdir vendor; fi
-	if test -d vendor/src; then rm -rf vendor/src; fi
-	cp -r src vendor/src
+	if test -d vendor; then rm -rf vendor; fi
+	cp -r src vendor
 	find vendor -name '.git' -print -type d -exec rm -rf {} +
 	rm -rf src
 
