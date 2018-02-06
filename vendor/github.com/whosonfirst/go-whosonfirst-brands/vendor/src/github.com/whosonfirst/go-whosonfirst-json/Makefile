@@ -10,7 +10,7 @@ self:   prep rmdeps
 	if test -d src; then rm -rf src; fi
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-json/
 	cp *.go src/github.com/whosonfirst/go-whosonfirst-json/
-	cp -r utils src/github.com/whosonfirst/go-whosonfirst-json/
+	cp -r properties src/github.com/whosonfirst/go-whosonfirst-json/
 	cp -r vendor/* src/
 
 rmdeps:
@@ -27,7 +27,7 @@ vendor-deps: deps
 
 fmt:
 	go fmt cmd/*.go
-	go fmt utils/*.go
+	go fmt properties/*.go
 	go fmt *.go
 
 bin:	self

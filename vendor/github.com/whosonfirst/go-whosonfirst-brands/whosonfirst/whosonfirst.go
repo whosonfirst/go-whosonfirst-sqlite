@@ -5,7 +5,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-flags"
 	"github.com/whosonfirst/go-whosonfirst-flags/existential"
 	"github.com/whosonfirst/go-whosonfirst-json"
-	"github.com/whosonfirst/go-whosonfirst-json/utils"
+	"github.com/whosonfirst/go-whosonfirst-json/properties"
 	"io"
 	_ "log"
 	"os"
@@ -63,20 +63,20 @@ func (b *WOFBrand) String() string {
 }
 
 func (b *WOFBrand) Id() int64 {
-	return utils.Int64Property(b.body, []string{"wof:brand_id"}, -1)
+	return properties.Int64Property(b, []string{"wof:brand_id"}, -1)
 }
 
 func (b *WOFBrand) Name() string {
-	return utils.StringProperty(b.body, []string{"wof:brand_name"}, "")
+	return properties.StringProperty(b, []string{"wof:brand_name"}, "")
 }
 
 func (b *WOFBrand) Size() string {
-	return utils.StringProperty(b.body, []string{"wof:brand_size"}, "")
+	return properties.StringProperty(b, []string{"wof:brand_size"}, "")
 }
 
 func (b *WOFBrand) IsCurrent() (flags.ExistentialFlag, error) {
 
-	c := utils.Int64Property(b.body, []string{"mz:is_current"}, -1)
+	c := properties.Int64Property(b, []string{"mz:is_current"}, -1)
 
 	if c == 0 || c == 1 {
 		return existential.NewKnownUnknownFlag(c)
@@ -123,7 +123,7 @@ func (b *WOFBrand) IsCurrent() (flags.ExistentialFlag, error) {
 
 func (b *WOFBrand) IsCeased() (flags.ExistentialFlag, error) {
 
-	c := utils.StringProperty(b.body, []string{"edtf:cessation"}, "")
+	c := properties.StringProperty(b, []string{"edtf:cessation"}, "")
 
 	var fl int64
 
@@ -141,7 +141,7 @@ func (b *WOFBrand) IsCeased() (flags.ExistentialFlag, error) {
 
 func (b *WOFBrand) IsDeprecated() (flags.ExistentialFlag, error) {
 
-	d := utils.StringProperty(b.body, []string{"edtf:deprecated"}, "")
+	d := properties.StringProperty(b, []string{"edtf:deprecated"}, "")
 
 	var fl int64
 
@@ -181,10 +181,10 @@ func (b *WOFBrand) IsSuperseded() (flags.ExistentialFlag, error) {
 
 func (b *WOFBrand) SupersededBy() []int64 {
 
-	return utils.Int64PropertyArray(b.body, []string{"wof:superseded_by"})
+	return properties.Int64PropertyArray(b, []string{"wof:superseded_by"})
 }
 
 func (b *WOFBrand) Supersedes() []int64 {
 
-	return utils.Int64PropertyArray(b.body, []string{"wof:supersedes"})
+	return properties.Int64PropertyArray(b, []string{"wof:supersedes"})
 }

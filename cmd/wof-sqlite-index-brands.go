@@ -4,7 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/whosonfirst/go-whosonfirst-brands"
+	"github.com/whosonfirst/go-whosonfirst-brands/whosonfirst"
+	wof_index "github.com/whosonfirst/go-whosonfirst-index"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/database"
@@ -13,11 +14,12 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strings"		
 )
 
 func main() {
 
-	valid_modes := strings.Join(index.Modes(), ",")
+	valid_modes := strings.Join(wof_index.Modes(), ",")
 	desc_modes := fmt.Sprintf("The mode to use importing data. Valid modes are: %s.", valid_modes)
 
 	dsn := flag.String("dsn", ":memory:", "")
@@ -72,10 +74,10 @@ func main() {
 
 	cb := func(ctx context.Context, fh io.Reader, args ...interface{}) (interface{}, error) {
 
-		path, err := index.PathForContext(ctx)
+		path, err := wof_index.PathForContext(ctx)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		return whosonfirst.LoadWOFBrandFromReader(fh)
@@ -90,7 +92,7 @@ func main() {
 	idx.Timings = *timings
 	idx.Logger = logger
 
-	err = idx.IndexPaths(flag.Args())
+	err = idx.IndexPaths(*mode, flag.Args())
 
 	if err != nil {
 		logger.Fatal("Failed to index paths in %s mode because: %s", *mode, err)

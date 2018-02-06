@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-json"
-	"github.com/whosonfirst/go-whosonfirst-json/utils"
+	"github.com/whosonfirst/go-whosonfirst-json/properties"
 	"log"
 )
 
@@ -23,27 +23,26 @@ func (p *PropertiesFlags) Set(path string) error {
 func main() {
 
 	var props PropertiesFlags
-	flag.Var(&props, "property", "...")
+	flag.Var(&props, "property", "A JSON property in dot-notation form to test for and display.")
 
 	flag.Parse()
 
 	for _, path := range flag.Args() {
 
-		d, err := json.LoadDocumentFromFile(path)
+		doc, err := json.LoadDocumentFromFile(path)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = utils.EnsureProperties(d.Bytes(), props)
+		err = properties.EnsureProperties(doc, props)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		for _, p := range props {
-
-			log.Println(path, p, utils.StringProperty(d.Bytes(), []string{p}, ""))
+			log.Println(path, p, properties.StringProperty(doc, []string{p}, ""))
 		}
 	}
 }

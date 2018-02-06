@@ -120,7 +120,7 @@ func (idx *SQLiteIndexer) IndexPaths(mode string, paths []string) error {
 		idx.Logger.Status("time to index all (%d) : %v", i, t2)
 	}
 
-	if idx.timings {
+	if idx.Timings {
 
 		go func() {
 
