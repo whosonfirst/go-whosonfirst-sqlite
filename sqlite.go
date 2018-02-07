@@ -2,7 +2,6 @@ package sqlite
 
 import (
        "database/sql"
-       "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 )
 
 type Database interface {
@@ -18,11 +17,6 @@ type Table interface {
      Schema() string
      InitializeTable(Database) error
      IndexRecord(Database, interface{}) error
-}
-
-type FeatureTable interface {
-     Table
-     IndexFeature(Database, geojson.Feature) error
 }
 
 // this is here so we can pass both sql.Row and sql.Rows to the
