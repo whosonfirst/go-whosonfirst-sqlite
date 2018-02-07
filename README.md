@@ -43,6 +43,8 @@ _Error handling has been removed for the sake of brevity._
 
 ## Tables
 
+_It is very likely that these tables will be moved in to an as-yet unwritten `go-whosonfirst-sqlite-features` package._
+
 ### ancestors
 
 ```
@@ -60,22 +62,7 @@ CREATE INDEX ancestors_by_lastmod ON ancestors (lastmodified);
 
 ### brands
 
-_This will probably be moved in to an as-yet unwritten `go-whosonfirst-sqlite-brands` package._
-
-```
-CREATE TABLE brands (
-       id INTEGER NOT NULL,
-       name TEXT,
-       size TEXT,
-       is_current INTEGER,
-       lastmodified INTEGER
-);
-
-CREATE INDEX brands_by_name ON brands (name, size, is_current);
-CREATE INDEX brands_by_name_current ON brands (name, is_current);	
-CREATE INDEX brands_by_lastmod ON brands (lastmodified);
-CREATE INDEX brands_by_id ON brands (id);
-```
+_This table was moved in to the [go-whosonfirst-sqlite-brands](https://github.com/whosonfirst/go-whosonfirst-sqlite-brands) package._
 
 ### concordances
 
@@ -215,40 +202,31 @@ type Table interface {
      Name() string
      Schema() string
      InitializeTable(Database) error
-     IndexFeature(Database, geojson.Feature) error
+     IndexRecord(Database, interface{}) error
 }
 ```
 
-Where `geojson.Feature` is defined in the [go-whosonfirst-geojson-v2](https://github.com/whosonfirst/go-whosonfirst-geojson-v2#geojsonfeature) package.
+It is left up to people implementing the `Table` interface to figure out what to do with the second value passed to the `IndexRecord` method. For example:
 
-_Note: In an effort to generalize this package the interface may be updated to include a generic `IndexRecord(Database, interface{})` method. It's still not decided though and as a consequence it's not clear whether `IndexFeature` will be replaced or kept around for legacy purposes._
+```
+func (t *BrandsTable) IndexRecord(db sqlite.Database, i interface{}) error {
+	return t.IndexBrand(db, i.(brands.Brand))
+}
+
+func (t *BrandsTable) IndexBrand(db sqlite.Database, b brands.Brand) error {
+	// code to index brands.Brands here
+}
+```
 
 ## Tools
 
 ### wof-sqlite-index-brands
 
-_This will probably be moved in to an as-yet unwritten `go-whosonfirst-sqlite-brands` package._
-
-```
-./bin/wof-sqlite-index-brands -h
-Usage of ./bin/wof-sqlite-index-brands:
-  -driver string
-    	 (default "sqlite3")
-  -dsn string
-    	 (default ":memory:")
-  -live-hard-die-fast
-    	Enable various performance-related pragmas at the expense of possible (unlikely) database corruption
-  -mode string
-    	The mode to use importing data. Valid modes are: directory,feature,feature-collection,files,geojson-ls,meta,path,repo,sqlite. (default "files")
-  -processes int
-    	The number of concurrent processes to index data with (default 8)
-  -timings
-    	Display timings during and after indexing
-```
+_This was moved in to the [go-whosonfirst-sqlite-brands](https://github.com/whosonfirst/go-whosonfirst-sqlite-brands) package._
 
 ### wof-sqlite-index-features
 
-_This used to be called `wof-sqlite-index`._
+_It is very likely that this tool will be moved in to an as-yet unwritten `go-whosonfirst-sqlite-features` package. It also used to be called `wof-sqlite-index`._
 
 ```
 ./bin/wof-sqlite-index-features -h

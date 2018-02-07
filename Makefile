@@ -30,7 +30,6 @@ deps:
 	@GOPATH=$(GOPATH) go get -u "github.com/jteeuwen/go-bindata/"
 	@GOPATH=$(GOPATH) go get -u "github.com/dustin/go-humanize"
 	@GOPATH=$(GOPATH) go get -u "github.com/twpayne/go-geom"
-	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-brands"
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-index"
 	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-log"
@@ -60,5 +59,4 @@ fmt:
 
 bin: 	self
 	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index-features cmd/wof-sqlite-index-features.go
-	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-index-brands cmd/wof-sqlite-index-brands.go
 	@GOPATH=$(GOPATH) go build -o bin/wof-sqlite-inventory cmd/wof-sqlite-inventory.go
