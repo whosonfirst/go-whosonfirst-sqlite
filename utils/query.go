@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ExistentialFlagsToQueryConditions(str_flags string) (string, []interface{}, error) {
+func ExistentialFlagsToQueryConditions(flag_label string, str_flags string) (string, []interface{}, error) {
 
 	conditions := make([]string, 0)
 	args := make([]interface{}, 0)
@@ -26,7 +26,7 @@ func ExistentialFlagsToQueryConditions(str_flags string) (string, []interface{},
 			return "", args, err
 		}
 
-		conditions = append(conditions, "is_current LIKE ?")
+		conditions = append(conditions, fmt.Sprintf("%s LIKE ?", flag_label))
 		args = append(args, fl.Flag())
 	}
 
