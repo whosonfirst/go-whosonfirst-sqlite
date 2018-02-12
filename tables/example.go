@@ -1,7 +1,7 @@
 package tables
 
 import (
-       "encoding/json"
+	"encoding/json"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
@@ -74,7 +74,7 @@ func (t *ExampleTable) IndexRecord(db sqlite.Database, i interface{}) error {
 	b, err := json.Marshal(i)
 
 	if err != nil {
-		return err	   
+		return err
 	}
 
 	id := "FIX ME"
