@@ -57,7 +57,7 @@ To account for [this issue](https://github.com/mattn/go-sqlite3/issues/204) DSN 
 
 `file::memory:?mode=memory&cache=shared`
 
-### things that don't start with `file:` (and aren't `:memory:`)
+### things that don't start with `file:`
 
 To account for [this issue](https://github.com/mattn/go-sqlite3/issues/39) DSN strings that are _not_ `:memory:` and _don't_ start with `:file:` will be rewritten as:
 
