@@ -139,8 +139,8 @@ func (idx *SQLiteIndexer) IndexPaths(mode string, paths []string) error {
 			}
 		}()
 
-		defer func(){
-		      done_ch <- true
+		defer func() {
+			done_ch <- true
 		}()
 	}
 
