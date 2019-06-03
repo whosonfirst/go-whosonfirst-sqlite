@@ -495,7 +495,7 @@ func (i *Indexer) IndexSQLiteDB(path string, args ...interface{}) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cpus := runtime.NumCPU() * 100	// configurable? (20171222/thisisaaronland)
+	cpus := runtime.NumCPU() * 100 // configurable? (20171222/thisisaaronland)
 	throttle_ch := make(chan bool, cpus)
 
 	for i := 0; i < cpus; i++ {
