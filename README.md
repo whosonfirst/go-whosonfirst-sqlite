@@ -107,14 +107,17 @@ If you look around the `whosonfirst` organization you'll notice there are a bunc
 * https://github.com/whosonfirst/go-whosonfirst-sqlite-features
 * https://github.com/whosonfirst/go-whosonfirst-sqlite-features-index
 
-And then this which is relevant because it needs to _index_ packages that have been created above:
+The first two are meant to be generic and broadly applicable to any SQLite database. The last two are specific to Who's On First documents.
+
+And then there's this which is relevant because it needs to _index_ databases that have been created using the packages above:
 
 * https://github.com/whosonfirst/go-whosonfirst-index
 
-The relationship / dependency-chain for this five packages looks like this:
+The relationship / dependency-chain for these five packages looks like this:
 
 ![](docs/deps.jpg)
 
 ## See also
 
 * https://sqlite.org/
+* https://github.com/mattn/go-sqlite3
