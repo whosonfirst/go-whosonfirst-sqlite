@@ -49,7 +49,7 @@ func (t *ExampleTable) Schema() string {
 		body TEXT
 	);`
 
-	return fmt.Sprintf(sql, t.Name(), t.Name())
+	return fmt.Sprintf(sql, t.Name())
 }
 
 func (t *ExampleTable) InitializeTable(db sqlite.Database) error {
