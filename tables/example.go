@@ -77,7 +77,7 @@ func (t *ExampleTable) IndexRecord(db sqlite.Database, i interface{}) error {
 		return err
 	}
 
-	id := "FIX ME"
+	id := -1
 	body := string(b)
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
