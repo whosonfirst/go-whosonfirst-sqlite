@@ -45,7 +45,7 @@ func (t *ExampleTable) Name() string {
 func (t *ExampleTable) Schema() string {
 
 	sql := `CREATE TABLE %s (
-		id INTEGER NOT NULL PRIMARY KEY,
+		id INTEGER NOT NULL,
 		body TEXT
 	);`
 
