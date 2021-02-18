@@ -36,8 +36,14 @@ github.com/whosonfirst/go-spatialite v0.1.1/go.mod h1:bm85HPhtlhMAEVKxouadrsGy3N
 github.com/whosonfirst/go-whosonfirst-cli v0.1.0/go.mod h1:Edy+amD+fMq1QS1yxB3u8maA8I93q/LG7JRNh+fsdfc=
 github.com/whosonfirst/go-whosonfirst-flags v0.1.0 h1:llb2wtsI2y+gHZCmWaamMCx4YDRE8ZXQRRYqC7qB4so=
 github.com/whosonfirst/go-whosonfirst-flags v0.1.0/go.mod h1:bovMiQphaVhqemXFmNVf9Ts0tqnWtzHRFMUSKX+zTE8=
+github.com/whosonfirst/go-whosonfirst-flags v0.2.0 h1:zia/L+rhKSQ5iruITPnwU9lqsd1SavvF+HYRubEARSs=
+github.com/whosonfirst/go-whosonfirst-flags v0.2.0/go.mod h1:ECd0AJJZIlybmjTGB9z+CPz9pSiMTwxur7fPKmDnoqI=
 github.com/whosonfirst/go-whosonfirst-placetypes v0.1.0/go.mod h1:Jdmug2QQLbrmg+UcYGz8k575GnrOEg63vZVS46e5fMs=
+github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4/go.mod h1:yl0zZ5tfK80C0kl34pJcPB3mZC5XXR7ybQJ5OJyEcDU=
+github.com/whosonfirst/go-whosonfirst-sources v0.1.0/go.mod h1:EUMHyGzUmqPPxlMmOp+28BFeoBdxxE0HCKRd67lkqGM=
+github.com/whosonfirst/go-whosonfirst-uri v0.2.0/go.mod h1:8eaDVcc4v+HHHEDaRbApdmhPwM4/JQllw2PktvZcPVs=
 github.com/whosonfirst/warning v0.1.0/go.mod h1:cAez7FpC/UEUrbiOXZO15v2JM8eijtFHQlN93AGFy1k=
+github.com/whosonfirst/warning v0.1.1/go.mod h1:/unEMzhB9YaMeEwTJpzLN3kM5LiSxdJhKEsf/OQhn6s=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20180218175443-cbe0f9307d01/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/net v0.0.0-20190311183353-d8887717615a/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=

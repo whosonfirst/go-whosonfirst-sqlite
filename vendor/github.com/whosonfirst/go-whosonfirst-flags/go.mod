@@ -1,5 +1,8 @@
 module github.com/whosonfirst/go-whosonfirst-flags
 
-require github.com/whosonfirst/go-whosonfirst-placetypes v0.1.0
-
 go 1.12
+
+require (
+	github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
+	github.com/whosonfirst/go-whosonfirst-uri v0.2.0
+)
